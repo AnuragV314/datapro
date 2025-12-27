@@ -1,0 +1,345 @@
+{% extends 'base.html' %}
+
+{% comment %} 
+
+{% block title %}Articles - DataPros{% endblock %}
+{% block meta_description %}Explore articles by data professionals on DataPros{% endblock %}
+{% block meta_keywords %}data science, machine learning, analytics, blog{% endblock %}
+
+{% block content %}
+<!-- Full Width Hero Section -->
+<div class="bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800 text-white py-16 px-6">
+  <div class="container mx-auto  text-center">
+    <h1 class="text-5xl md:text-6xl font-black mb-4 tracking-tight">
+      Discover <span class="text-purple-200">Data Insights</span>
+    </h1>
+    <p class="text-xl text-purple-100 max-w-2xl mx-auto">
+      Explore cutting-edge articles on data science, machine learning, and AI from industry experts
+    </p>
+  </div>
+</div>
+
+<!-- Main Content Area -->
+<div class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+  <div class="container mx-auto  px-6 py-12">
+    
+    {% if query %}
+      <div class="mb-8 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100">
+          Search Results for "<span class="text-purple-600 dark:text-purple-400">{{ query }}</span>"
+        </h2>
+      </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      
+      <!-- Sidebar (Categories Section) -->
+      <aside class="lg:col-span-1">
+        <div class="sticky top-24 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+          
+          <h3 class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-6">
+            Explore Topics
+          </h3>
+
+          <ul class="space-y-1">
+            {% for category in categories %}
+              <li>
+                <a href="?category={{ category.slug }}" 
+                  class="group flex items-center justify-between px-4 py-3 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 transition-all duration-200">
+                  
+                  <span class="font-semibold text-sm">{{ category.name }}</span>
+
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </a>
+              </li>
+            {% empty %}
+              <li class="p-4 text-sm text-gray-500 dark:text-gray-400 italic text-center bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+                No categories found.
+              </li>
+            {% endfor %}
+          </ul>
+
+          <!-- Stats Card -->
+          <div class="mt-8 p-6 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-2xl border border-purple-200 dark:border-purple-800">
+            <h4 class="text-sm font-bold text-purple-900 dark:text-purple-300 mb-4">Community Stats</h4>
+            <div class="space-y-3">
+              <div class="flex justify-between items-center">
+                <span class="text-xs text-gray-600 dark:text-gray-400">Articles</span>
+                <span class="text-lg font-bold text-purple-600 dark:text-purple-400">1000+</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-xs text-gray-600 dark:text-gray-400">Authors</span>
+                <span class="text-lg font-bold text-purple-600 dark:text-purple-400">500+</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-xs text-gray-600 dark:text-gray-400">Readers</span>
+                <span class="text-lg font-bold text-purple-600 dark:text-purple-400">50K+</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content (Articles Section) -->
+      <section class="lg:col-span-3">
+        
+        <!-- Articles Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {% for article in articles %}
+            <article class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 overflow-hidden border border-gray-200 dark:border-gray-700 group">
+              
+              {% if article.featured_image %}
+                <div class="overflow-hidden h-48 relative">
+                  <a href="{% url 'articles:article_detail' article.slug %}">
+                    <img src="{{ article.featured_image.url }}" alt="{{ article.title }}"
+                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </a>
+                </div>
+              {% endif %}
+
+              <div class="p-6">
+                <!-- Category Badge -->
+                <div class="mb-3">
+                  <span class="inline-block px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-bold rounded-full">
+                    {{ article.category.name|default:'Uncategorized' }}
+                  </span>
+                </div>
+
+                <!-- Title -->
+                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-3 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                  <a href="{% url 'articles:article_detail' article.slug %}" class="hover:underline">
+                    {{ article.title }}
+                  </a>
+                </h3>
+
+                <!-- Meta Info -->
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-4 gap-2">
+                  <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center text-white font-bold text-xs">
+                      {{ article.author.username|first|upper }}
+                    </div>
+                    <span class="font-medium text-gray-700 dark:text-gray-300">{{ article.author.username|capfirst }}</span>
+                  </div>
+                  <span class="text-gray-400">•</span>
+                  <span>{{ article.created_at|date:'M d, Y' }}</span>
+                </div>
+
+                <!-- Tags -->
+                {% if article.tags.all %}
+                  <div class="flex flex-wrap gap-2">
+                    {% for tag in article.tags.all %}
+                      <a href="?tag={{ tag.slug }}" class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-medium px-3 py-1 rounded-full hover:bg-purple-100 dark:hover:bg-purple-900/30 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                        #{{ tag.name }}
+                      </a>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+            </article>
+          {% empty %}
+            <div class="col-span-2 bg-white dark:bg-gray-800 p-12 rounded-2xl shadow-lg text-center border border-gray-200 dark:border-gray-700">
+              <svg class="w-24 h-24 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              <h3 class="text-xl font-bold text-gray-700 dark:text-gray-300 mb-2">No Articles Found</h3>
+              <p class="text-gray-500 dark:text-gray-400">Try adjusting your search or filters</p>
+            </div>
+          {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+          <div class="mt-12 flex justify-center">
+            <nav class="inline-flex gap-2">
+              {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:border-purple-500 hover:text-purple-600 dark:hover:text-purple-400 transition-all duration-200 font-medium shadow-sm hover:shadow-md">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                  </svg>
+                </a>
+              {% endif %}
+
+              {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                  <span class="px-5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-purple-500/30">{{ num }}</span>
+                {% else %}
+                  <a href="?page={{ num }}" class="px-5 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:border-purple-500 hover:text-purple-600 dark:hover:text-purple-400 transition-all duration-200 font-medium shadow-sm hover:shadow-md">{{ num }}</a>
+                {% endif %}
+              {% endfor %}
+
+              {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:border-purple-500 hover:text-purple-600 dark:hover:text-purple-400 transition-all duration-200 font-medium shadow-sm hover:shadow-md">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </a>
+              {% endif %}
+            </nav>
+          </div>
+        {% endif %}
+      </section>
+    </div>
+  </div>
+</div>
+{% endblock %} {% endcomment %}
+
+
+
+{% block title %}The Archive - PrajnaLogica | Logic & Wisdom{% endblock %}
+{% block meta_description %}A polymathic sanctuary for the synthesis of supreme insight and logical rigor. Explore our treatises on AI, Ethics, and Mathematics.{% endblock %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800 py-20 px-6">
+  <div class="container mx-auto ">
+    <div class="max-w-3xl">
+      <h4 class="text-purple-600 dark:text-purple-400 font-bold uppercase tracking-widest text-xs mb-4">
+        The Synthesis of Rigor and Insight
+      </h4>
+      <h1 class="text-5xl md:text-7xl font-black text-gray-900 dark:text-white mb-6 leading-tight tracking-tighter">
+        Decoding the <span class="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">Logic of Reality</span>
+      </h1>
+      <p class="text-xl text-gray-500 dark:text-gray-400 leading-relaxed font-medium">
+        Explore interdisciplinary treatises bridging the 'How' of Data Science with the 'Why' of Philosophical Inquiry.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-gray-50/50 dark:bg-gray-900/50 min-h-screen">
+  <div class="container mx-auto  px-6 py-12">
+    
+    {% if query %}
+      <div class="mb-12 flex items-center gap-4">
+        <div class="h-1 w-12 bg-purple-600"></div>
+        <h2 class="text-3xl font-bold text-gray-900 dark:text-white">
+          Inquiry Results: "<span class="text-purple-600">{{ query }}</span>"
+        </h2>
+      </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-12">
+      
+      <aside class="lg:col-span-1">
+        <div class="sticky top-24 space-y-10">
+          
+          <div>
+            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">Explore Fields</h3>
+            <ul class="space-y-2">
+              {% for category in categories %}
+                <li>
+                  <a href="?category={{ category.slug }}" 
+                    class="group flex items-center justify-between px-4 py-3 rounded-xl bg-white dark:bg-gray-800 border border-transparent hover:border-purple-200 dark:hover:border-purple-800 shadow-sm transition-all duration-300">
+                    <span class="font-bold text-sm text-gray-700 dark:text-gray-300 group-hover:text-purple-600">{{ category.name }}</span>
+                    <i class="fa fa-chevron-right text-[10px] text-gray-300 group-hover:text-purple-600 transition-transform group-hover:translate-x-1"></i>
+                  </a>
+                </li>
+              {% empty %}
+                <li class="p-4 text-sm text-gray-500 italic text-center">Archive empty.</li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          <div class="p-8 rounded-3xl bg-gray-900 text-white relative overflow-hidden shadow-2xl">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-purple-600/20 blur-3xl rounded-full -mr-16 -mt-16"></div>
+            <h4 class="text-xs font-bold text-purple-400 uppercase tracking-widest mb-6 relative z-10">Sanctuary Stats</h4>
+            <div class="space-y-6 relative z-10">
+              <div>
+                <div class="text-3xl font-black">1000+</div>
+                <div class="text-[10px] uppercase tracking-tighter text-gray-400 font-bold">Treatises Published</div>
+              </div>
+              <div>
+                <div class="text-3xl font-black">50K+</div>
+                <div class="text-[10px] uppercase tracking-tighter text-gray-400 font-bold">Inquisitive Minds</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <section class="lg:col-span-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {% for article in articles %}
+            <article class="flex flex-col bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-500 group">
+              
+              {% if article.featured_image %}
+                <div class="relative aspect-[16/10] overflow-hidden">
+                  <a href="{% url 'articles:article_detail' article.slug %}">
+                    <img src="{{ article.featured_image.url }}" alt="{{ article.title }}"
+                         class="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  </a>
+                  <div class="absolute top-4 left-4">
+                    <span class="px-3 py-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur text-purple-700 dark:text-purple-400 text-[10px] font-black uppercase tracking-widest rounded-lg shadow-sm">
+                      {{ article.category.name|default:'Inquiry' }}
+                    </span>
+                  </div>
+                </div>
+              {% endif %}
+
+              <div class="p-8 flex-grow flex flex-col">
+                <div class="flex items-center gap-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">
+                  <span>{{ article.author.username }}</span>
+                  <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                  <span>{{ article.created_at|date:'M d, Y' }}</span>
+                </div>
+
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 leading-tight group-hover:text-purple-600 transition-colors">
+                  <a href="{% url 'articles:article_detail' article.slug %}">
+                    {{ article.title }}
+                  </a>
+                </h3>
+
+                <p class="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-6 line-clamp-3">
+                    {% if article.excerpt %}{{ article.excerpt }}{% else %}A deep dive into the underlying structures of this subject matter...{% endif %}
+                </p>
+
+                <div class="mt-auto pt-6 border-t border-gray-50 dark:border-gray-700 flex flex-wrap gap-2">
+                  {% for tag in article.tags.all|slice:":3" %}
+                      <a href="?tag={{ tag.slug }}" class="group flex items-center justify-between px-4 py-3 rounded-xl bg-white dark:bg-gray-800 border border-transparent hover:border-purple-200 dark:hover:border-purple-800 shadow-sm transition-all duration-300">
+                        <span class="text-[10px] font-bold text-gray-400 italic dark:text-gray-300 group-hover:text-purple-600">#{{ tag.name }}</span>
+                      </a>
+                  {% endfor %}
+                </div>
+              </div>
+            </article>
+          {% empty %}
+            <div class="col-span-full py-20 text-center bg-white dark:bg-gray-800 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-700">
+              <i class="fa fa-book-open text-5xl text-gray-200 mb-4 block"></i>
+              <p class="text-gray-500 font-medium italic text-lg">The archive is currently silent.</p>
+            </div>
+          {% endfor %}
+        </div>
+
+        {% if page_obj.has_other_pages %}
+          <div class="mt-20 flex justify-center">
+            <nav class="flex items-center gap-1 bg-white dark:bg-gray-800 p-2 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+              {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                  <i class="fa fa-chevron-left text-xs"></i>
+                </a>
+              {% endif %}
+
+              {% for num in page_obj.paginator.page_range %}
+                <a href="?page={{ num }}" 
+                   class="w-10 h-10 flex items-center justify-center rounded-xl text-sm font-bold transition
+                   {% if page_obj.number == num %} bg-purple-600 text-white shadow-lg shadow-purple-500/30 {% else %} text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 {% endif %}">
+                  {{ num }}
+                </a>
+              {% endfor %}
+
+              {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                  <i class="fa fa-chevron-right text-xs"></i>
+                </a>
+              {% endif %}
+            </nav>
+          </div>
+        {% endif %}
+      </section>
+    </div>
+  </div>
+</div>
+{% endblock %}

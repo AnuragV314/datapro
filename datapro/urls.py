@@ -15,13 +15,49 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from fastapi.middleware.wsgi import WSGIMiddleware
 from apis.main import app as fastapi_app
 
+from django.conf import settings
+from django.conf.urls.static import static
+
+from django.contrib.sitemaps.views import sitemap
+from .sitemaps import ArticleSitemap, CategorySitemap, TagSitemap
+
+from . import views
+from django.views.generic import TemplateView
+
+sitemaps = {
+    'articles': ArticleSitemap,
+    'categories': CategorySitemap,
+    'tags': TagSitemap,
+}
+
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/', include('allauth.urls')),  # Allauth URLs
+    path('profile/', include('users.urls')),
+    path('analytics/', include('analytics.urls')),
     path('apis/', WSGIMiddleware(fastapi_app)),
-    path('users/', include('users.urls')),
-    path('', include('articles.urls'))
+
+    path('about/', TemplateView.as_view(template_name="pages/about.html"), name='about'),
+    path('terms/', TemplateView.as_view(template_name="pages/terms.html"), name='terms'),
+    path('privacy/', TemplateView.as_view(template_name="pages/privacy.html"), name='privacy'),
+    path('cookies/', TemplateView.as_view(template_name="pages/cookie.html"), name='cookies'),
+    path('community-guidelines/', TemplateView.as_view(template_name="pages/community_guidelines.html"), name='community_guidelines'),
+    path('contact/', TemplateView.as_view(template_name="pages/contact.html"), name='contact'),
+
+    
+    
+    
+    path('', include('articles.urls', namespace='articles')),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
+    # path('summernote/', include('django_summernote.urls')), # summernote URLs
 ]
+
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

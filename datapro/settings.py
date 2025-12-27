@@ -11,10 +11,12 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -31,18 +33,66 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'users',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'users',
+    'channels',
     'articles',
     'apis',
+    'ckeditor',
     'storages',
-    'django_summernote',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    
+    'taggit',
+    'django_elasticsearch_dsl',
+    'analytics', # New analytics app
+    
+    'django.contrib.sitemaps',
 ]
+
+
+# Configure Django Channels
+ASGI_APPLICATION = 'datapro.asgi:application'  # Updated from core to datapro
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',  # Corrected
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379)],
+        },
+    },
+}
+
+# Elasticsearch settings
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'http://127.0.0.1:9200',
+        #  'request_timeout': 60, 
+    },
+}
+
+
+# Cache settings using Redis
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
+
+# Silence MySQL warning
+SILENCED_SYSTEM_CHECKS = ['models.W036']
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -50,6 +100,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware', #OAuth
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -59,7 +110,7 @@ ROOT_URLCONF = 'datapro.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -73,6 +124,36 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'datapro.wsgi.application'
+
+AUTH_USER_MODEL = 'users.User'
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
+
+SITE_ID = 1
+
+# Allauth settings
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+
+# Google OAuth (get credentials from Google Cloud Console)
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': GOOGLE_CLIENT_ID,
+            'secret': GOOGLE_CLIENT_SECRET,
+            'key': ''
+        }
+    }
+}
+
+
 
 
 # Database
@@ -97,20 +178,42 @@ DATABASES = {
     }
 }
 
+
+
 # MongoDB (handled separately via pymongo in models/views)
 
 # AWS S3
-AWS_ACCESS_KEY_ID = 'your_access_key'
-AWS_SECRET_ACCESS_KEY = 'your_secret_key'
-AWS_STORAGE_BUCKET_NAME = 'datapro-media-bucket'
-AWS_S3_REGION_NAME = 'us-east-1'
-AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# AWS_ACCESS_KEY_ID = 'your_access_key'
+# AWS_SECRET_ACCESS_KEY = 'your_secret_key'
+# AWS_STORAGE_BUCKET_NAME = 'datapro-media-bucket'
+# AWS_S3_REGION_NAME = 'us-east-1'
+# AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 # Celery/Redis
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+# Celery Configuration
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'  # Explicitly use 127.0.0.1
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    'max_retries': 3,
+    'interval_start': 0,
+    'interval_step': 0.2,
+    'interval_max': 0.5,
+    'hostname': '127.0.0.1'  # Explicitly set hostname
+}
 
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'vermagup01@gmail.com'
+EMAIL_HOST_PASSWORD = 'jngfcbqpbczzrzfk'
 
 
 # Password validation
@@ -131,6 +234,34 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
+import sys
+# Test settings
+TESTING = 'test' in sys.argv
+if TESTING:
+    DATABASES['default']['ATOMIC_REQUESTS'] = False
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -153,3 +284,56 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# STATICFILES_DIRS = [BASE_DIR / "static"]
+# STATIC_ROOT = BASE_DIR / "staticfiles"
+
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        # Define the toolbar buttons for a professional look
+        'toolbar': 'Custom',
+        'toolbar_Custom': [
+            ['Maximize', 'ShowBlocks', '-', 'Undo', 'Redo', '-', 'Source'],
+            ['Format', 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat'],
+            ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv'],
+            ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+            ['Link', 'Unlink', 'Anchor'],
+            ['Image', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar'],
+            ['TextColor', 'BGColor'],
+            ['FontSize', 'Font'],
+        ],
+        
+        # UI configuration
+        'width': '100%',
+        'height': 400, # A comfortable editing height
+        'enterMode': 2, # CKEDITOR.ENTER_BR (use <br> for new lines)
+        'shiftEnterMode': 1, # CKEDITOR.ENTER_P (use <p> on shift+enter)
+        
+        # Styles for the content area (Optional: makes content look consistent with your site)
+        # You'd need to define a CSS file path here if you want to include custom styles:
+        # 'contentsCss': ['/static/css/ckeditor_styles.css'], 
+        
+        # Enable Code Snippets (Syntax highlighting)
+        'extraPlugins': 'codesnippet',
+        
+        # Remove the default Django admin styling that can sometimes conflict
+        'skin': 'moono-lisa', # A clean, standard skin
+        
+        # Optional: File Upload Configuration (requires ckeditor_uploader in INSTALLED_APPS)
+        'filebrowserBrowseUrl': '/ckeditor/browse/',
+        'filebrowserUploadUrl': '/ckeditor/upload/',
+    }
+}
+# CKEditor Upload Settings (Required if using image/file uploads)
+CKEDITOR_UPLOAD_PATH = 'uploads/'
+
+
+
+
+

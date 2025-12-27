@@ -4,8 +4,10 @@ from . import views
 app_name = 'users'
 
 urlpatterns = [
-    path('', views.users, name='users'),
-    path('create/', views.user_create, name='user_create'),
-    path('<int:pk>/edit/', views.user_edit, name='user_edit'),
-    path('<int:pk>/delete/', views.user_delete, name='user_delete'),
+    # testing purposes
+    # path('', views.users, name='users'),
+    
+    # User profile page
+    path('edit/', views.profile_edit, name='profile_edit'),
+    path('<str:username>/', views.user_profile, name='user_profile'),
 ]

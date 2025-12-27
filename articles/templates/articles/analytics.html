@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Analytics Dashboard</h1>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="bg-white p-4 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold text-gray-700">Total Users</h3>
+            <p class="text-2xl text-indigo-600">{{ total_users }}</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold text-gray-700">Total Articles</h3>
+            <p class="text-2xl text-indigo-600">{{ total_articles }}</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold text-gray-700">Total Likes</h3>
+            <p class="text-2xl text-indigo-600">{{ total_likes }}</p>
+        </div>
+    </div>
+    <h2 class="text-xl font-semibold text-gray-700 mb-4">Top Articles by Views</h2>
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <ul class="space-y-4">
+            {% for article in articles %}
+                <li>
+                    <a href="{% url 'articles:article_detail' article.slug %}" class="text-indigo-600 hover:underline">{{ article.title }}</a>
+                    <p class="text-gray-600">Views: {{ article.view_count }} | Likes: {{ article.likes.count }}</p>
+                </li>
+            {% empty %}
+                <p class="text-gray-600">No articles yet.</p>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

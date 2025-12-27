@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Contact Us
+{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-8">
+    <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-6 text-center">Contact Us</h1>
+  
+    <p class="text-gray-600 dark:text-gray-300 text-center">
+      Have questions or feedback? We’d love to hear from you! Fill out the form below or reach us via email.
+    </p>
+  
+    <form class="space-y-6 bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg">
+      <div>
+        <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+        <input type="text" id="name" name="name" required
+               class="mt-1 block w-full px-4 py-2 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary transition duration-200">
+      </div>
+  
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+        <input type="email" id="email" name="email" required
+               class="mt-1 block w-full px-4 py-2 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary transition duration-200">
+      </div>
+  
+      <div>
+        <label for="message" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Message</label>
+        <textarea id="message" name="message" rows="5" required
+                  class="mt-1 block w-full px-4 py-2 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary transition duration-200"></textarea>
+      </div>
+  
+      <div class="text-center">
+        <button type="submit"
+                class="px-6 py-3 bg-secondary text-white rounded-full hover:bg-emerald-600 transition duration-200">
+          Send Message
+        </button>
+      </div>
+    </form>
+  
+    <p class="text-center text-gray-500 dark:text-gray-400 mt-4">
+      Or email us directly at <a href="mailto:contact@datapros.com" class="text-primary hover:underline">contact@datapros.com</a>
+    </p>
+  </div>
+  {% endblock %}
+

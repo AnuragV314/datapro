@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% comment %}Oct 5{% endcomment %}
+{% comment %} {% block content %}
+  <h1>{{ profile_user.username }}'s Profile</h1>
+  <p>
+    <strong>Bio:</strong> {{ profile_user.bio|default:'No bio provided' }}
+  </p>
+  <p>
+    <strong>Expertise:</strong> {{ profile_user.expertise|default:'Not specified' }}
+  </p>
+  <h3>Published Articles</h3>
+  {% for article in articles %}
+    <h4><a href="{% url 'articles:article_detail' article.slug %}">{{ article.title }}</a></h4>
+    <p>{{ article.created_at }}</p>
+  {% empty %}
+    <p>No articles published yet.</p>
+  {% endfor %}
+{% endblock %} {% endcomment %}
+
+{% block title %}
+  {{ profile_user.username }}'s Profile
+{% endblock %}
+{% block meta_description %}
+  {{ profile_user.username }}'s profile on DataPros
+{% endblock %}
+{% block meta_keywords %}
+  profile, {{ profile_user.expertise|default:'data science' }}
+{% endblock %}
+
+{% block content %}
+  <div class="max-w-4xl mx-auto dark:bg-gray-900">
+    <!-- PROFILE HEADER (Card Design) -->
+    <header class="bg-white dark:bg-gray-800 p-8 sm:p-10 rounded-xl border border-gray-200 dark:border-gray-700 mb-10">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between">
+        <!-- Avatar and Title -->
+        <div class="flex items-center mb-6 md:mb-0">
+          <!-- Conditional Profile Picture Display -->
+          {% if user.profile_image %}
+            <!-- Display image if it exists -->
+            <img src="{{ user.profile_image|default:'/static/img/default-user.png' }}" alt="{{ profile_user.username }}'s profile picture" class="w-20 h-20 rounded-full object-cover mr-6 border-4 border-white dark:border-gray-800" />
+          {% else %}
+            <!-- Fallback to first letter of username -->
+            <div class="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-3xl font-bold text-gray-600 dark:text-gray-300 mr-6 border-4 border-white dark:border-gray-800">{{ profile_user.username|make_list|first|upper }}</div>
+          {% endif %}
+
+          <div>
+            {% if profile_user.first_name %}
+              <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
+                {{ profile_user.first_name }} {{ profile_user.last_name }}
+                {% if profile_user.is_expert %}
+                <span
+                class="inline-flex items-center gap-1 
+                       bg-gradient-to-r from-yellow-400 to-amber-500 
+                       dark:from-amber-600 dark:to-yellow-500
+                       text-white text-xs font-semibold 
+                       px-2.5 py-0.5 rounded-full shadow-sm 
+                       border border-yellow-300 dark:border-amber-700
+                       transition-transform hover:scale-105 duration-200"
+              >                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10 15l-5.878 3.09 1.122-6.545L.488 6.91l6.561-.954L10 0l2.951 5.956 6.561.954-4.756 4.635 1.122 6.545z" />
+                    </svg>Expert
+                  </span>
+                {% endif %}
+              </h1>
+            {% else %}
+              <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-1">{{ profile_user.username|capfirst }}</h1>
+            {% endif %}
+
+            {% if request.user.is_authenticated and request.user == profile_user %}
+              <p class="text-sm text-indigo-600 dark:text-indigo-400 font-medium">This is your profile.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        {% comment %} {% if request.user.is_authenticated and request.user == profile_user %}
+          <a href="{% url 'users:profile_edit' %}" class="bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-indigo-700 transition duration-150 shadow-md">Edit Profile</a>
+        {% endif %} {% endcomment %}
+
+        {% if profile_user.profile_picture %}
+          <img src="{{ profile_user.profile_picture.url }}" alt="{{ profile_user.username }}'s Profile Picture" class="w-36 h-36 object-cover rounded-full shadow-lg border-4 border-white dark:border-gray-800" />
+        {% endif %}
+
+        {% if user == profile_user %}
+          <a href="{% url 'users:profile_edit' %}" class="inline-flex items-center mt-4 px-4 py-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 rounded-lg shadow-sm text-sm font-medium transition duration-150 ease-in-out">Edit Profile</a>
+        {% endif %}
+      </div>
+
+      <!-- Profile Details -->
+      <div class="mt-6 border-t border-gray-100 dark:border-gray-700 pt-4 space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center">
+          <strong class="text-sm font-semibold text-gray-600 dark:text-gray-400 sm:w-32">Expertise:</strong>
+          <span class="text-gray-800 dark:text-gray-200">{{ profile_user.expertise|default:'Not specified' }}</span>
+        </div>
+        <div class="flex flex-col">
+          <strong class="text-sm font-semibold text-gray-600 dark:text-gray-400 sm:w-32 mb-1">Bio:</strong>
+          <p class="text-gray-700 dark:text-gray-300 leading-relaxed">{{ profile_user.bio|default:'No detailed bio provided yet. Update your profile to share more about yourself!' }}</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- PUBLISHED ARTICLES SECTION -->
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-5 border-b border-gray-200 dark:border-gray-700 pb-2">Published Articles ({{ articles|length }})</h2>
+
+    <!-- ARTICLE GRID: Shows 1 column on mobile, 2 columns on medium screens and up -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {% for article in articles %}
+        {% if article.published or request.user == profile_user %}
+          <!-- Article Card -->
+          <div class="relative bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition duration-300 hover:shadow-lg hover:border-indigo-500">
+            <!-- Draft Badge -->
+            {% if not article.published %}
+              <span class="absolute top-2 right-2 bg-yellow-400 text-white text-xs px-2 py-1 rounded-full font-semibold">Draft</span>
+            {% endif %}
+
+            <!-- Featured Image -->
+            {% if article.featured_image %}
+              <img src="{{ article.featured_image.url }}" alt="{{ article.title }}" class="w-full h-40 object-cover" />
+            {% endif %}
+
+            <!-- Article Content -->
+            <div class="p-4">
+              <h3 class="text-lg font-semibold mb-1"><a href="{% url 'articles:article_detail' article.slug %}" class="text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition duration-150">{{ article.title }}</a></h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400">{{ article.created_at|date:'F d, Y' }}</p>
+            </div>
+          </div>
+        {% endif %}
+      {% empty %}
+        <div class="col-span-1 md:col-span-2 p-6 text-center border border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
+          <p class="text-gray-600 dark:text-gray-400 text-lg">No articles yet.</p>
+          {% if request.user.is_authenticated and request.user == profile_user %}
+            <p class="mt-2 text-sm text-gray-500">
+              <a href="{% url 'articles:article_create' %}" class="text-indigo-600 hover:underline font-medium">Start writing your first article!</a>
+            </p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- BOOKMARKED ARTICLES SECTION -->
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white my-5 border-b border-gray-200 dark:border-gray-700 pb-2">Bookmarked Articles ({{ user.bookmarks.count }})</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {% if user == profile_user %}
+        {% for bookmark in user.bookmarks.all %}
+          <div class="relative bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition duration-300 hover:shadow-md hover:border-blue-500">
+            <!-- Bookmarked Badge -->
+            <span class="absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-semibold">Bookmarked</span>
+
+            {% if bookmark.article.featured_image %}
+              <img src="{{ bookmark.article.featured_image.url }}" alt="{{ bookmark.article.title }}" class="w-full h-40 object-cover" />
+            {% endif %}
+
+            <div class="p-4">
+              <h3 class="text-lg font-semibold mb-1"><a href="{% url 'articles:article_detail' bookmark.article.slug %}" class="text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition duration-150">{{ bookmark.article.title }}</a></h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400">Bookmarked on {{ bookmark.created_at|date:'F d, Y' }}</p>
+            </div>
+          </div>
+        {% empty %}
+          <div class="col-span-1 md:col-span-2 p-6 text-center border border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
+            <p class="text-gray-600 dark:text-gray-400 text-lg">No bookmarked articles.</p>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+<div class="flex justify-center py-10 px-4">
+  <div class="w-full max-w-xl">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-8 sm:p-10 border border-gray-100 dark:border-gray-700">
+
+      <!-- Heading -->
+      <h2 class="text-3xl font-extrabold text-center mb-8 text-gray-900 dark:text-gray-100">Edit Your Profile</h2>
+
+      <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- Profile Image Upload Section -->
+        <div class="flex flex-col items-center space-y-4">
+          <div class="relative w-32 h-32 rounded-full overflow-hidden shadow-md border-4 border-gray-200 dark:border-gray-700">
+            
+            {% if user.profile_image %}
+            <img id="preview-image" 
+                 src="{{ user.profile_image }}" 
+                 alt="Profile Picture" 
+                 class="object-cover w-full h-full">
+
+            {% else %}
+            <div class="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-4xl font-bold text-gray-600 dark:text-gray-300">
+              {{ user.username|make_list|first|upper }}
+            </div>  
+            {% endif %}
+                
+          </div>
+
+          <label for="image-upload" 
+                 class="cursor-pointer inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-full hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 transition duration-200 ease-in-out">
+            <i class="fas fa-upload mr-2"></i> Upload New Photo
+          </label>
+
+          <p class="hidden">{{ form.profile_image }}</p>
+          
+        </div>
+
+        <!-- Other Fields -->
+        <div class="space-y-4">
+          {% for field in form %}
+            {% if field.name != 'profile_image' %}
+              <div class="flex flex-col">
+                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}
+                  <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        <!-- Save Button -->
+        <div class="pt-6">
+          <button type="submit" 
+                  class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+            <i class="fas fa-save mr-2"></i> Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Image Preview Script -->
+<script>
+  document.getElementById('image-upload').addEventListener('change', function (event) {
+    const file = event.target.files[0];
+    if (file) {
+      const preview = document.getElementById('preview-image');
+      const reader = new FileReader();
+      reader.onload = e => preview.src = e.target.result;
+      reader.readAsDataURL(file);
+    }
+  });
+</script>
+{% endblock %}

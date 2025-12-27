@@ -1,23 +1,32 @@
-import sys
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-class User(models.Model):
-    id = models.AutoField(primary_key=True)
-    username = models.CharField(max_length=150, unique=True)
-    email = models.EmailField(unique=True)
-    password_hash = models.CharField(max_length=255)
-    first_name = models.CharField(max_length=30, blank=True)
-    last_name = models.CharField(max_length=30, blank=True)
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
-    is_superuser = models.BooleanField(default=False)
-    date_joined = models.DateTimeField(auto_now_add=True)
-    last_login = models.DateTimeField(null=True, blank=True)
+class User(AbstractUser):
+    bio = models.TextField(blank=True)
+    expertise = models.CharField(max_length=255, blank=True)
+    # profile_image = models.URLField(blank=True, null=True)
+    profile_image = models.ImageField(upload_to='images/profiles/', blank=True, null=True)
+    is_expert = models.BooleanField(default=False)
     
-    class Meta:
-        managed = "test" in sys.argv
-        db_table = "users"
+    # def check_expert_status(self):
+    #     from articles.models import Article
+    #     if Article.objects.filter(author=self, published=True).count() >= 5:  
+    #         self.is_expert = True
+    #         self.save()
 
-    def __str__(self):
-        return self.username
+    def check_expert_status(self):
+        from articles.models import Article
+        published_count = Article.objects.filter(author=self, published=True).count()
+        new_status = published_count >= 30
+        if self.is_expert != new_status:
+            self.is_expert = new_status
+            self.save()
 
+    
+    
+    
+    
+    
+    
+    
+    

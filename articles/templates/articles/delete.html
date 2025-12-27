@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Delete Article{% endblock %}
+{% block content %}
+    <div class="flex justify-center p-4">
+        <div class="w-full max-w-lg"> <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
+                
+                <div>
+                    <h2 class="text-2xl font-bold text-center mb-6 text-gray-900 dark:text-gray-100">
+                        Delete "{{ article.title }}"?
+                    </h2>
+                    
+                    <p class="mb-6 text-gray-700 dark:text-gray-300">
+                        Are you sure? This action cannot be undone.
+                    </p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" 
+                            class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg 
+                                transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50">
+                            Delete
+                        </button>
+                    </form>
+                    
+                    <a href="{% url 'articles:article_detail' article.slug %}" 
+                        class="block text-center w-full mt-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg 
+                            transition duration-150 ease-in-out dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200">
+                        Cancel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

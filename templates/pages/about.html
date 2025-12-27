@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  About Us
+{% endblock %}
+
+{% comment %} {% block content %}
+  <div class="space-y-12">
+    <div class="text-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-800 rounded-xl shadow-inner border border-gray-100 dark:border-gray-700">
+      <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white sm:text-5xl lg:text-6xl mb-4">A Hub for <span class="text-primary">Data Excellence</span></h1>
+      <p class="mt-4 max-w-3xl mx-auto text-xl text-gray-600 dark:text-gray-300">DataPros is a vibrant community-driven platform for knowledge sharing and insights in technology, data science, and analytics.</p>
+    </div>
+
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-6 text-center border-b pb-3 border-gray-200 dark:border-gray-700">Our Mission</h2>
+      <div class="flex flex-col lg:flex-row items-center bg-white dark:bg-gray-900 p-8 rounded-xl shadow-lg border-l-4 border-secondary">
+        <div class="lg:w-1/4 flex justify-center mb-4 lg:mb-0">
+          <i class="fas fa-handshake fa-4x text-secondary"></i>
+        </div>
+        <div class="lg:w-3/4 lg:pl-8 text-center lg:text-left">
+          <p class="text-lg text-gray-600 dark:text-gray-300 italic">Our mission is to foster an inclusive, safe, and insightful environment where data enthusiasts can connect, share knowledge, and advance their skills in a professional yet engaging space.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="py-6">
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-8 text-center">The DataPros Experience</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-t-4 border-primary">
+          <i class="fas fa-lightbulb fa-2x text-primary mb-3"></i>
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Knowledge Sharing</h3>
+          <p class="text-gray-600 dark:text-gray-400">Designed for both aspiring and experienced professionals, our platform enables users to create, explore, and engage with high-quality articles every day.</p>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-t-4 border-secondary">
+          <i class="fas fa-bolt fa-2x text-secondary mb-3"></i>
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Real-Time Insights</h3>
+          <p class="text-gray-600 dark:text-gray-400">With real-time notifications, interactive discussions, and powerful search powered by Elasticsearch, the latest trends are just a click away.</p>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-t-4 border-primary">
+          <i class="fas fa-users fa-2x text-primary mb-3"></i>
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Community Driven</h3>
+          <p class="text-gray-600 dark:text-gray-400">Whether you’re contributing your expertise, bookmarking articles, or exploring trending topics, DataPros is your go-to hub for learning and growth.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center pt-8">
+      <a href="{% url 'account_signup' %}" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-full shadow-lg text-white bg-secondary hover:bg-emerald-600 transition duration-300 sm:text-lg">
+        Join the DataPros Community Today!
+        <i class="fas fa-arrow-right ml-3"></i>
+      </a>
+    </div>
+  </div>
+{% endblock %} {% endcomment %}
+
+{% block content %}
+  <div class="space-y-12">
+    <!-- Hero Section -->
+    <div class="text-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-800 rounded-xl shadow-inner border border-gray-100 dark:border-gray-700">
+      <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white sm:text-5xl lg:text-6xl mb-4">A Hub for <span class="text-primary">Data Excellence</span></h1>
+      <p class="mt-4 max-w-3xl mx-auto text-xl text-gray-600 dark:text-gray-300">DataPros is a vibrant, community-driven platform where technology and data enthusiasts come together to share knowledge, insights, and innovative ideas in analytics, AI, and data science.</p>
+    </div>
+
+    <!-- Mission Section -->
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-6 text-center border-b pb-3 border-gray-200 dark:border-gray-700">Our Mission</h2>
+      <div class="flex flex-col lg:flex-row items-center bg-white dark:bg-gray-900 p-8 rounded-xl shadow-lg border-l-4 border-secondary">
+        <div class="lg:w-1/4 flex justify-center mb-4 lg:mb-0">
+          <i class="fas fa-handshake fa-4x text-secondary" aria-hidden="true"></i>
+        </div>
+        <div class="lg:w-3/4 lg:pl-8 text-center lg:text-left">
+          <p class="text-lg text-gray-600 dark:text-gray-300 italic">Our mission is to foster an inclusive, safe, and insightful environment where data enthusiasts can connect, share knowledge, and advance their skills in a professional yet engaging community.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="py-6">
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-8 text-center">The DataPros Experience</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-t-4 border-primary">
+          <i class="fas fa-lightbulb fa-2x text-primary mb-3" aria-hidden="true"></i>
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Knowledge Sharing</h3>
+          <p class="text-gray-600 dark:text-gray-400">Designed for both aspiring and experienced professionals, our platform enables users to create, explore, and engage with high-quality articles every day.</p>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-t-4 border-secondary">
+          <i class="fas fa-bolt fa-2x text-secondary mb-3" aria-hidden="true"></i>
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Real-Time Insights</h3>
+          <p class="text-gray-600 dark:text-gray-400">With real-time notifications, interactive discussions, and powerful search powered by Elasticsearch, the latest trends and insights are just a click away.</p>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-t-4 border-primary">
+          <i class="fas fa-users fa-2x text-primary mb-3" aria-hidden="true"></i>
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Community Driven</h3>
+          <p class="text-gray-600 dark:text-gray-400">Whether you’re contributing expertise, bookmarking articles, or exploring trending topics, DataPros is your go-to hub for learning, growth, and professional networking.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="py-12 bg-gray-50 dark:bg-gray-900">
+      <div class="max-w-6xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center mb-12">
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-t-4 border-primary">
+          <h3 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-2">1K+</h3>
+          <p class="text-gray-600 dark:text-gray-400">Daily Visitors</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-t-4 border-secondary">
+          <h3 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-2">50+</h3>
+          <p class="text-gray-600 dark:text-gray-400">New Articles Daily</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-t-4 border-primary">
+          <h3 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-2">500+</h3>
+          <p class="text-gray-600 dark:text-gray-400">Active Contributors</p>
+        </div>
+      </div>
+
+      <!-- Testimonials -->
+      <div class="py-6">
+        <h2 class="text-3xl font-bold text-gray-800 dark:text-white text-center mb-8">What Our Community Says</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-t-4 border-secondary">
+            <p class="text-gray-600 dark:text-gray-400 mb-4 italic">"DataPros has transformed the way I learn and connect with other data enthusiasts. The articles are top-notch and always relevant."</p>
+            <div class="flex items-center space-x-3">
+              {% comment %} <img src="/static/images/user1.jpg" alt="Anurag Verma" class="w-10 h-10 rounded-full object-cover" /> {% endcomment %}
+              <i class="fa fa-user w-10 h-10 rounded-full object-cover text-gray-400 bg-gray-100 flex items-center justify-center border border-secondary dark:border-2 dark:border-secondary"></i>
+              <span class="text-gray-900 dark:text-white font-semibold">Anurag Verma</span>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-t-4 border-primary">
+            <p class="text-gray-600 dark:text-gray-400 mb-4 italic">"I love the real-time insights and notifications. Staying updated on the latest trends in AI and analytics has never been easier."</p>
+            <div class="flex items-center space-x-3">
+              <i class="fa fa-user w-10 h-10 rounded-full object-cover text-gray-400 bg-gray-100 flex items-center justify-center border border-primary dark:border-2 dark:border-primary"></i>
+              {% comment %} <img src="/static/images/user2.jpg" alt="Shubham Mishra" class="w-10 h-10 rounded-full object-cover" /> {% endcomment %}
+              
+              <span class="text-gray-900 dark:text-white font-semibold">Shubham Mishra</span>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-t-4 border-secondary">
+            <p class="text-gray-600 dark:text-gray-400 mb-4 italic">"The community is amazing! Bookmarking, commenting, and sharing articles keeps me engaged and motivated every day."</p>
+            <div class="flex items-center space-x-3">
+              {% comment %} <img src="/static/images/user3.jpg" alt="KM Alka" class="w-10 h-10 rounded-full object-cover" /> {% endcomment %}
+              <i class="fa fa-user w-10 h-10 rounded-full object-cover text-gray-400 bg-gray-100 flex items-center justify-center border border-secondary dark:border-2 dark:border-secondary"></i>
+              <span class="text-gray-900 dark:text-white font-semibold">KM Alka</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Call-to-Action -->
+    <div class="text-center pt-8">
+      <a href="{% url 'account_signup' %}" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-full shadow-lg text-white bg-secondary hover:bg-emerald-600 transition duration-300 sm:text-lg">
+        Join the DataPros Community Today!
+        <i class="fas fa-arrow-right ml-3"></i>
+      </a>
+    </div>
+  </div>
+{% endblock %}

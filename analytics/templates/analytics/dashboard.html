@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+
+{% block title %}Platform Performance Metrics - DataPros{% endblock %}
+
+{% block content %}
+<!-- Dashboard Container -->
+<div class="p-4 sm:p-6 lg:p-8 bg-gray-50 min-h-screen  dark:bg-gray-800 ">
+
+    <!-- Header Section -->
+    <header class="mb-8 border-b pb-4 border-gray-200">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight dark:text-gray-200">
+                Content Performance Overview
+            </h1>
+            <p class="mt-2 dark:text-gray-300 md:mt-0 text-sm font-medium text-gray-500 dark:text-gray-300">
+                Key platform metrics and analytics.
+                <span class="text-gray-700 font-semibold dark:text-gray-300">
+                    Last updated: 
+                    {% if current_date %}
+                        {{ current_date|date:"F d, Y" }}
+                    {% else %}
+                        Today
+                    {% endif %}
+                </span>
+            </p>
+        </div>
+    </header>
+
+    <!-- Core Engagement Summary Cards -->
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold text-gray-700 mb-4 dark:text-gray-300">Core Engagement Summary</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+            <!-- Card 1: Total Articles -->
+            <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-indigo-500 hover:shadow-xl transition duration-300 dark:bg-gray-900">
+                <div class="flex items-center justify-between">
+                    <p class="text-sm font-medium text-indigo-500 uppercase">Published Content</p>
+                    <i class="fa-solid fa-file-lines text-indigo-200 text-2xl"></i>
+                </div>
+                <h3 class="text-4xl font-extrabold text-gray-900 mt-2 dark:text-gray-300">
+                    {{ total_articles }}
+                </h3>
+                <p class="text-xs text-gray-400 mt-2 dark:text-gray-300 dark:text-gray-300">Total articles on the platform</p>
+            </div>
+
+            <!-- Card 2: Total Views -->
+            <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-emerald-500 hover:shadow-xl transition duration-300 dark:bg-gray-900">
+                <div class="flex items-center justify-between">
+                    <p class="text-sm font-medium text-emerald-500 uppercase">Total Lifetime Views</p>
+                    <i class="fa-solid fa-chart-simple text-emerald-200 text-2xl"></i>
+                </div>
+                <h3 class="text-4xl font-extrabold text-gray-900 mt-2 dark:text-gray-300">
+                    {{ total_views|floatformat:"0" }}
+                </h3>
+                <p class="text-xs text-gray-400 mt-2 dark:text-gray-300">Total traffic across all content</p>
+            </div>
+
+            <!-- Card 3: Total Likes -->
+            <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-yellow-500 hover:shadow-xl transition duration-300 dark:bg-gray-900">
+                <div class="flex items-center justify-between">
+                    <p class="text-sm font-medium text-yellow-600 uppercase  dark:text-gray-300">Engagement Score (Likes)</p>
+                    <i class="fa-solid fa-thumbs-up text-yellow-200 text-2xl"></i>
+                </div>
+                <h3 class="text-4xl font-extrabold text-gray-900 mt-2 dark:text-gray-300">
+                    {{ total_likes|floatformat:"0" }}
+                </h3>
+                <p class="text-xs text-gray-400 mt-2 dark:text-gray-300">Total positive reactions</p>
+            </div>
+
+            <!-- Card 4: Total Comments -->
+            <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-rose-500 hover:shadow-xl transition duration-300 dark:bg-gray-900">
+                <div class="flex items-center justify-between">
+                    <p class="text-sm font-medium text-rose-500 uppercase">Community Feedback</p>
+                    <i class="fa-solid fa-comment-dots text-rose-200 text-2xl"></i>
+                </div>
+                <h3 class="text-4xl font-extrabold text-gray-900 mt-2 dark:text-gray-300">
+                    {{ total_comments|floatformat:"0" }}
+                </h3>
+                <p class="text-xs text-gray-400 mt-2 dark:text-gray-300">Total user comments</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Charts and Data Section (Responsive Layout) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Column 1: Views Over Time Chart (Takes 2/3 width on large screens) -->
+        <div class="lg:col-span-2">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg h-full">
+                <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-4 border-b pb-2">Traffic Trend: Views Over Last 30 Days</h2>
+                <div class="relative h-96">
+                    <canvas id="viewsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+           <!-- Column 2: Top Articles Table (Takes 1/3 width on large screens) -->
+    <div class="lg:col-span-1">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg h-full transition duration-300">
+            <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-4 border-b pb-2 border-gray-200 dark:border-gray-700">Top Performing Articles</h2>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-100 mt-0 dark:bg-gray-700">
+                        <tr>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Title
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Views
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        {% for article in top_articles|slice:":8" %}
+                        <tr class="hover:bg-indigo-50/50 dark:hover:bg-gray-700/50 transition duration-150">
+                            <td class="px-3 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                                <a href="{% url 'articles:article_detail' article.slug %}" class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 line-clamp-2">
+                                    {{ article.title|truncatechars:35 }}
+                                </a>
+                            </td>
+                            <td class="px-3 py-3 whitespace-nowrap text-sm text-right text-gray-700 dark:text-gray-300 font-bold">
+                                {{ article.view_count }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="2" class="px-3 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                                No top articles data available.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+
+    </div>
+
+</div> 
+
+<!-- Chart.js Setup (Requires Chart.js and Font Awesome in base.html or included here) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+    let chartInstance = null;
+
+    function getChartColors() {
+        // Always detect current mode
+        const isDark = document.documentElement.classList.contains('dark');
+        if (isDark) {
+            return {
+                border: 'rgb(165, 180, 252)', // indigo-200
+                bg: 'rgba(129, 140, 248, 0.18)',
+                label: 'rgb(229, 231, 235)',  // gray-200
+                grid: '#374151',
+                axis: 'rgb(229, 231, 235)',
+                point: 'rgb(165, 180, 252)'
+            };
+        } else {
+            return {
+                border: 'rgb(79, 70, 229)', // indigo-600
+                bg: 'rgba(79, 70, 229, 0.15)',
+                label: 'rgb(41, 37, 36)',    // gray-900
+                grid: '#e5e7eb',
+                axis: 'rgb(41, 37, 36)',
+                point: 'rgb(79, 70, 229)'
+            };
+        }
+    }
+
+    function renderChart() {
+        // Destroy chart if it exists
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        const MODE_COLORS = getChartColors();
+        const ctx = document.getElementById('viewsChart').getContext('2d');
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [{% for view in views_by_day %}'{{ view.day }}',{% endfor %}],
+                datasets: [{
+                    label: 'Daily Article Views',
+                    data: [{% for view in views_by_day %}{{ view.count }},{% endfor %}],
+                    backgroundColor: MODE_COLORS.bg,
+                    borderColor: MODE_COLORS.border,
+                    borderWidth: 3,
+                    pointBackgroundColor: MODE_COLORS.point,
+                    pointBorderColor: '#fff',
+                    pointHoverRadius: 6,
+                    pointRadius: 4,
+                    tension: 0.4,
+                    fill: true,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        mode: 'index', intersect: false,
+                        bodyFont: { size: 14 }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: MODE_COLORS.label }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Views Count', color: MODE_COLORS.axis },
+                        ticks: { color: MODE_COLORS.label },
+                        grid: { color: MODE_COLORS.grid }
+                    }
+                }
+            }
+        });
+    }
+
+    // On page load, draw the chart
+    document.addEventListener('DOMContentLoaded', () => {
+        renderChart();
+
+        // Listen for class changes (mode toggle)
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(mutation => {
+                if (mutation.attributeName === 'class') {
+                    renderChart();
+                }
+            });
+        });
+        observer.observe(document.documentElement, { attributes: true });
+    });
+</script>
+
+
+
+{% endblock %}

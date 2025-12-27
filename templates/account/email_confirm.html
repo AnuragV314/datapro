@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Confirm Email{% endblock %}
+{% block content %}
+    <div class="max-w-md mx-auto bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md">
+        <h1 class="text-2xl font-bold mb-4">Confirm Email</h1>
+        <p>Please confirm your email address.</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="bg-primary text-white p-2 rounded-md w-full hover:bg-blue-700">Confirm</button>
+        </form>
+    </div>
+{% endblock %}

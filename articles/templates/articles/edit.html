@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% comment %} {% extends 'base.html' %}
+{% block title %}
+  Edit Article
+{% endblock %}
+
+{% block content %}
+  <div class="max-w-4xl mx-auto bg-white dark:bg-gray-900 p-8 sm:p-10 rounded-xl border border-gray-200 dark:border-gray-700">
+    <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-8 text-center">Edit "{{ article.title }}"</h1>
+
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+      {{ form.media }}
+      {% csrf_token %}
+
+      <div class="space-y-6">
+        {% for field in form %}
+          <div class="flex flex-col">
+            <label for="{{ field.id_for_label }}" class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+              {{ field.label }}
+              {% if field.field.required %}
+                <span class="text-red-500">*</span>
+              {% endif %}
+            </label>
+
+            {{ field }}
+
+            {% if field.help_text %}
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ field.help_text|safe }}</p>
+            {% endif %}
+
+            {% for error in field.errors %}
+              <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <button type="submit" class="bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg w-full hover:bg-indigo-700 transition duration-150 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50 mt-8">Publish Article</button>
+    </form>
+  </div>
+{% endblock %} {% endcomment %}
+
+{% load static %}
+{% block title %}Edit Article{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto bg-white dark:bg-gray-900 p-8 sm:p-10 rounded-xl border border-gray-200 dark:border-gray-700 shadow-md">
+  <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-8 text-center">Edit "{{ article.title }}"</h1>
+  <form method="post" enctype="multipart/form-data" class="space-y-6">
+    {{ form.media }}
+    {% csrf_token %}
+
+    <div class="space-y-6">
+      {% for field in form %}
+        <div class="flex flex-col">
+          <label for="{{ field.id_for_label }}" class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+            {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+          </label>
+
+          {% if field.name == 'featured_image' %}
+            <div id="featured-image-preview"
+                 class="relative w-full h-48 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg flex flex-col items-center justify-center cursor-pointer overflow-hidden bg-gray-50 dark:bg-gray-800 transition hover:border-indigo-500">
+
+              {% if article.featured_image %}
+                <img id="preview-img" src="{{ article.featured_image.url }}" class="w-full h-full object-cover rounded-lg shadow-lg" />
+              {% else %}
+                <div id="initial-placeholder" class="flex flex-col items-center justify-center text-gray-400 dark:text-gray-500">
+                  <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 7h2l3-4h8l3 4h2M4 7v13a2 2 0 002 2h12a2 2 0 002-2V7M4 7h16"></path>
+                  </svg>
+                  <span id="preview-text" class="text-sm">Click or drag &amp; drop to upload image</span>
+                </div>
+                <img id="preview-img" class="hidden w-full h-full object-cover rounded-lg" />
+              {% endif %}
+
+              <!-- Custom upload button for accessibility and professional UI 
+                   This replaces the native file input UI -->
+              <label for="{{ field.id_for_label }}"
+                     class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md cursor-pointer font-semibold transition hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-300 dark:focus:ring-indigo-800">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 12l5 5m0 0l5-5m-5 5V6"/>
+                </svg>
+                <span>Upload Image</span>
+              </label>
+
+              <button type="button" id="remove-image"
+                      class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition z-10"
+                      {% if not article.featured_image %} style="display: none;" {% endif %}>&times;</button>
+            </div>
+
+            <!-- Hide native input, render only for labeling purposes -->
+            <input type="file" name="{{ field.html_name }}" id="{{ field.id_for_label }}"
+                   class="hidden" accept="image/*" />
+
+            {% if field.value and field.value.url %}
+              {{ form.featured_image_clear }}
+            {% endif %}
+            
+
+            {% if field.help_text %}
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ field.help_text|safe }}</p>
+            {% endif %}
+            {% for error in field.errors %}
+              <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
+            {% endfor %}
+          {% else %}
+            {{ field }}
+            {% if field.help_text %}
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ field.help_text|safe }}</p>
+            {% endif %}
+            {% for error in field.errors %}
+              <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
+            {% endfor %}
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <button type="submit"
+            class="bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg w-full hover:bg-indigo-700 transition duration-150 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50 mt-8">
+      Publish Article
+    </button>
+  </form>
+</div>
+
+<script>
+  const input = document.getElementById('{{ form.featured_image.id_for_label }}')
+  const previewWrapper = document.getElementById('featured-image-preview')
+  const previewImg = document.getElementById('preview-img')
+  const previewText = document.getElementById('preview-text')
+  const removeBtn = document.getElementById('remove-image')
+  const initialPlaceholder = document.getElementById('initial-placeholder')
+  const clearCheckboxId = '{{ form.featured_image.id_for_label }}' + '-clear';
+  const clearCheckbox = document.getElementById(clearCheckboxId);
+  const isImagePresentInitially = previewImg && previewImg.src && previewImg.src !== '' && !previewImg.classList.contains('hidden');
+
+  function updateRemoveButtonVisibility() {
+    if (input.files.length > 0 || (isImagePresentInitially && (!clearCheckbox || !clearCheckbox.checked))) {
+      removeBtn.style.display = 'flex';
+    } else {
+      removeBtn.style.display = 'none';
+    }
+  }
+
+  updateRemoveButtonVisibility();
+
+  previewWrapper.addEventListener('click', (e) => {
+    if (e.target !== removeBtn) {
+      input.click();
+    }
+  });
+
+  input.addEventListener('change', function () {
+    const file = this.files[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = function (e) {
+        previewImg.src = e.target.result
+        previewImg.classList.remove('hidden')
+        if (previewText) previewText.classList.add('hidden')
+        if (initialPlaceholder) initialPlaceholder.classList.add('hidden')
+        if (clearCheckbox) clearCheckbox.checked = false;
+        updateRemoveButtonVisibility();
+      }
+      reader.readAsDataURL(file)
+    }
+  });
+
+  removeBtn.addEventListener('click', (e) => {
+    e.stopPropagation()
+    input.value = ''
+    if (isImagePresentInitially && clearCheckbox) {
+      clearCheckbox.checked = true;
+    }
+    previewImg.src = ''
+    previewImg.classList.add('hidden')
+    if (previewText) previewText.classList.remove('hidden')
+    if (initialPlaceholder) initialPlaceholder.classList.remove('hidden')
+    updateRemoveButtonVisibility();
+  });
+
+  previewWrapper.addEventListener('dragover', (e) => {
+    e.preventDefault()
+    previewWrapper.classList.add('border-indigo-500')
+  })
+  previewWrapper.addEventListener('dragleave', () => {
+    previewWrapper.classList.remove('border-indigo-500')
+  })
+  previewWrapper.addEventListener('drop', (e) => {
+    e.preventDefault()
+    previewWrapper.classList.remove('border-indigo-500')
+    input.files = e.dataTransfer.files
+    const file = input.files[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = function (e) {
+        previewImg.src = e.target.result
+        previewImg.classList.remove('hidden')
+        if (previewText) previewText.classList.add('hidden')
+        if (initialPlaceholder) initialPlaceholder.classList.add('hidden')
+        if (clearCheckbox) clearCheckbox.checked = false;
+        updateRemoveButtonVisibility();
+      }
+      reader.readAsDataURL(file)
+    }
+  })
+</script>
+{% endblock %}

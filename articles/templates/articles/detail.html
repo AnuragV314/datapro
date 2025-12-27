@@ -1,0 +1,526 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+  {{ article.title }}
+{% endblock %}
+{% block meta_description %}
+  {{ article.title }} by {{ article.author.username }} on DataPros
+{% endblock %}
+{% block meta_keywords %}
+  {{ article.category.name|default:'data science' }},{% for tag in article.tags.all %}
+    {{ tag.name }},
+  {% endfor %}blog
+{% endblock %}
+{% block meta_author %}
+  {{ article.author.username }}
+{% endblock %}
+{% block content %}
+  <div class="max-w-5xl mx-auto bg-white dark:bg-gray-800 p-6 sm:p-10 rounded-xl shadow-sm">
+    <!-- Header -->
+    <header class="mb-8 border-b border-gray-200 dark:border-gray-700 pb-4">
+      <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-2">{{ article.title }}</h1>
+      <div class="text-sm text-gray-500 dark:text-gray-400 flex flex-wrap items-center">
+        <span>By <span class="font-medium">{{ article.author.username|capfirst }}</span></span>
+        <span class="mx-2">•</span>
+        <time datetime="{{ article.created_at|date:'Y-m-d' }}">{{ article.created_at|date:'F d, Y' }}</time>
+        <span class="mx-2">•</span>
+        <span class="font-medium text-indigo-600 dark:text-indigo-400">{{ article.category.name|default:'Uncategorized' }}</span>
+      </div>
+      {% if user == article.author %}
+        <div class="mt-6 flex space-x-3">
+          <a href="{% url 'articles:article_edit' article.slug %}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium transition">Edit</a>
+          <a href="{% url 'articles:article_delete' article.slug %}" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium transition">Delete</a>
+        </div>
+      {% endif %}
+    </header>
+    <!-- Featured Image -->
+    {% if article.featured_image %}
+      <img src="{{ article.featured_image.url }}" alt="{{ article.title }}" class="w-full h-80 object-cover rounded-xl mb-8 shadow-sm" />
+    {% endif %}
+    <!-- Article Content -->
+    <div class="prose prose-lg dark:prose-invert max-w-none mb-10">{{ content|safe }}</div>
+    <!-- Tags, Likes, Views -->
+    <footer class="flex flex-col sm:flex-row sm:items-center justify-between border-t border-b border-gray-200 dark:border-gray-700 py-4 mb-10">
+      <div>
+        <p class="text-gray-600 dark:text-gray-300">
+          <span class="font-semibold mr-2">Tags:</span>
+          {% for tag in article.tags.all %}
+            <a href="{% url 'articles:article_list' %}?tag={{ tag.slug }}" class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs font-medium px-3 py-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition">{{ tag.name }}</a>
+          {% endfor %}
+        </p>
+      </div>
+      <div class="flex items-center mt-4 sm:mt-0 space-x-6">
+        <button id="like-button" class="flex items-center gap-2 text-gray-500 hover:text-red-500 transition" data-slug="{{ article.slug }}">
+          {% if user in article.likes.all %}
+            <i class="fas fa-heart text-red-500"></i>
+          {% else %}
+            <i class="far fa-heart"></i>
+          {% endif %}
+          <span id="like-count">{{ article.likes.count }}</span>
+        </button>
+        <div class="flex items-center gap-2 text-gray-500 hover:text-blue-500 transition">
+          <i class="far fa-comment"></i>
+          <span>{{ comments|length }}</span>
+        </div>
+        <div class="flex items-center gap-2 text-gray-500 hover:text-green-500 transition">
+          <i class="fas fa-chart-bar"></i>
+          <span>{{ article.view_count }}</span>
+        </div>
+        {% if user.is_authenticated %}
+          <button id="bookmark-button" class="flex items-center gap-2 text-gray-500 hover:text-yellow-500 transition" data-slug="{{ article.slug }}">
+            {% if user in article.bookmarks.all %}
+              <i class="fas fa-bookmark text-yellow-500"></i>
+            {% else %}
+              <i class="far fa-bookmark"></i>
+            {% endif %}
+            <span id="bookmark-count">{{ article.bookmarks.count }}</span>
+          </button>
+        {% endif %}
+      </div>
+    </footer>
+    <!-- Comment Form -->
+    {% if user.is_authenticated %}
+      <form method="post" action="{% url 'articles:add_comment' article.slug %}" class="space-y-4 mt-8">
+        {% csrf_token %}
+        <textarea name="content" rows="4" class="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:ring-blue-500 focus:border-blue-500" placeholder="Write your comment..." required aria-label="Write a comment"></textarea>
+        <button type="submit" class="bg-blue-600 text-white font-medium px-6 py-2 rounded-lg hover:bg-blue-700 transition">Submit Comment</button>
+      </form>
+    {% else %}
+      <p class="text-center py-4 border-t border-gray-200 dark:border-gray-700">
+        <a href="{% url 'account_login' %}" class="text-blue-600 dark:text-blue-400 font-medium hover:underline">Log in</a> to comment.
+      </p>
+    {% endif %}
+    <!-- Comments Section -->
+    <h3 class="text-3xl font-bold my-4 text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2"></h3>
+    {% if comments %}
+      <!-- Initial 5 Comments -->
+      {% for comment in comments|slice:':5' %}
+        <div class="bg-white dark:bg-gray-900 p-5 rounded-2xl shadow-sm mb-6 border border-gray-200 dark:border-gray-700 transition">
+          <div class="flex items-center mb-3">
+            {% comment %} <img src="https://ui-avatars.com/api/?name={{ comment.author.username }}&background=random" class="w-10 h-10 rounded-full mr-3" alt="{{ comment.author.username }}'s avatar" /> {% endcomment %}
+
+            {% if comment.author.profile_image %}
+              <!-- Display image if it exists -->
+              <img src="{{ comment.author.profile_image }}" alt="{{ comment.author.username }}'s profile picture" class="w-10 h-10 rounded-full object-cover mr-6 border-4 border-white dark:border-gray-800" />
+            {% else %}
+              <!-- Fallback to first letter of username -->
+              <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-3xl font-bold text-gray-600 dark:text-gray-300 mr-6 border-4 border-white dark:border-gray-800">{{ comment.author.username|make_list|first|upper }}</div>
+            {% endif %}
+
+            <div>
+              <p class="font-semibold text-gray-900 dark:text-white">{{ comment.author.username }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">{{ comment.created_at|date:'M d, Y, H:i' }}</p>
+            </div>
+          </div>
+          <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+            {% if comment.parent %}
+              <span class="font-semibold text-blue-600 dark:text-blue-400">@{{ comment.parent.author.username }}</span>
+              {{ comment.content }}
+            {% else %}
+              {{ comment.content }}
+            {% endif %}
+          </p>
+          {% if user.is_authenticated %}
+            <div class="mt-3 flex items-center justify-end space-x-3">
+              <a href="{% url 'articles:report_comment' comment.id %}" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-500 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-600 dark:hover:text-red-400 transition" title="Report this comment" aria-label="Report comment"><i class="fas fa-flag mr-1"></i> Report</a>
+              <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 dark:bg-blue-900/30 rounded-full hover:bg-blue-100 dark:hover:bg-blue-800/50 transition reply-button" data-comment-id="{{ comment.id }}" data-username="{{ comment.author.username }}" aria-label="Reply to {{ comment.author.username }}'s comment"><i class="fas fa-reply mr-1"></i> Reply</button>
+            </div>
+            <!-- Reply Form -->
+            <form method="post" action="{% url 'articles:add_reply' article.slug comment.id %}" class="reply-form-{{ comment.id }} hidden mt-4 ml-10 space-y-3 transition-all duration-300 ease-in-out">
+              {% csrf_token %}
+              <textarea name="content" rows="3" class="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white text-sm focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Write your reply..." required aria-label="Reply to {{ comment.author.username }}'s comment"></textarea>
+              <div class="flex justify-end space-x-2">
+                <button type="button" class="px-4 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium transition cancel-reply-button" data-comment-id="{{ comment.id }}">Cancel</button>
+                <button type="submit" class="px-4 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium transition">Post Reply</button>
+              </div>
+            </form>
+          {% endif %}
+          <!-- Replies -->
+          {% with replies=comment.approved_replies %}
+            {% if replies %}
+              <div class="mt-4 ml-10">
+                {% for reply in replies %}
+                  <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-xl border border-gray-200 dark:border-gray-700 mb-2">
+                    <div class="flex items-center mb-2">
+                      {% comment %} <img src="https://ui-avatars.com/api/?name={{ reply.author.username }}&background=random" class="w-8 h-8 rounded-full mr-2" alt="{{ reply.author.username }}'s avatar" />
+                      {% endcomment %}
+
+                      {% if comment.author.profile_image %}
+                        <!-- Display image if it exists -->
+                        <img src="{{ comment.author.profile_image }}" alt="{{ comment.author.username }}'s profile picture" class="w-10 h-10 rounded-full object-cover mr-6 border-4 border-white dark:border-gray-800" />
+                      {% else %}
+                        <!-- Fallback to first letter of username -->
+                        <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-3xl font-bold text-gray-600 dark:text-gray-300 mr-6 border-4 border-white dark:border-gray-800">{{ comment.author.username|make_list|first|upper }}</div>
+                      {% endif %}
+                      <div>
+                        <p class="font-semibold text-sm text-gray-900 dark:text-white">{{ reply.author.username }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ reply.created_at|date:'M d, Y, H:i' }}</p>
+                      </div>
+                    </div>
+                    <p class="text-gray-700 dark:text-gray-300 text-sm ml-1">
+                      <span class="font-semibold text-blue-600 dark:text-blue-400">@{{ reply.parent.author.username }}</span>
+                      {{ reply.content }}
+                    </p>
+                    {% if user.is_authenticated %}
+                      <div class="mt-2 flex justify-end space-x-2">
+                        <a href="{% url 'articles:report_comment' reply.id %}" class="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-500 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-600 dark:hover:text-red-400 transition" title="Report this reply" aria-label="Report reply"><i class="fas fa-flag mr-1"></i> Report</a>
+                        <button type="button" class="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 dark:bg-blue-900/30 rounded-full hover:bg-blue-100 dark:hover:bg-blue-800/50 transition reply-button" data-comment-id="{{ reply.id }}" data-username="{{ reply.author.username }}" aria-label="Reply to {{ reply.author.username }}'s reply"><i class="fas fa-reply mr-1"></i> Reply</button>
+                      </div>
+                      <!-- Nested Reply Form -->
+                      <form method="post" action="{% url 'articles:add_reply' article.slug reply.id %}" class="reply-form-{{ reply.id }} hidden mt-3 ml-6 space-y-2 transition-all duration-300 ease-in-out">
+                        {% csrf_token %}
+                        <textarea name="content" rows="2" class="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white text-sm focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Write your reply..." required aria-label="Reply to {{ reply.author.username }}'s reply"></textarea>
+                        <div class="flex justify-end space-x-2">
+                          <button type="button" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-xs font-medium transition cancel-reply-button" data-comment-id="{{ reply.id }}">Cancel</button>
+                          <button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs font-medium transition">Post Reply</button>
+                        </div>
+                      </form>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+                {% if comment.reply_count > 2 %}
+                  <div id="hidden-replies-{{ comment.id }}" class="hidden">
+                    {% for reply in replies|slice:'2:' %}
+                      <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-xl border border-gray-200 dark:border-gray-700 mb-2">
+                        <div class="flex items-center mb-2">
+                          {% comment %} <img src="https://ui-avatars.com/api/?name={{ reply.author.username }}&background=random" class="w-8 h-8 rounded-full mr-2" alt="{{ reply.author.username }}'s avatar" /> {% endcomment %}
+
+                          {% if comment.author.profile_image %}
+                            <!-- Display image if it exists -->
+                            <img src="{{ comment.author.profile_image }}" alt="{{ comment.author.username }}'s profile picture" class="w-10 h-10 rounded-full object-cover mr-6 border-4 border-white dark:border-gray-800" />
+                          {% else %}
+                            <!-- Fallback to first letter of username -->
+                            <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-3xl font-bold text-gray-600 dark:text-gray-300 mr-6 border-4 border-white dark:border-gray-800">{{ comment.author.username|make_list|first|upper }}</div>
+                          {% endif %}
+                          <div>
+                            <p class="font-semibold text-sm text-gray-900 dark:text-white">{{ reply.author.username }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ reply.created_at|date:'M d, Y, H:i' }}</p>
+                          </div>
+                        </div>
+                        <p class="text-gray-700 dark:text-gray-300 text-sm ml-1">
+                          <span class="font-semibold text-blue-600 dark:text-blue-400">@{{ reply.parent.author.username }}</span>
+                          {{ reply.content }}
+                        </p>
+                        {% if user.is_authenticated %}
+                          <div class="mt-2 flex justify-end space-x-2">
+                            <a href="{% url 'articles:report_comment' reply.id %}" class="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-500 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-600 dark:hover:text-red-400 transition" title="Report this reply" aria-label="Report reply"><i class="fas fa-flag mr-1"></i> Report</a>
+                            <button type="button" class="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 dark:bg-blue-900/30 rounded-full hover:bg-blue-100 dark:hover:bg-blue-800/50 transition reply-button" data-comment-id="{{ reply.id }}" data-username="{{ reply.author.username }}" aria-label="Reply to {{ reply.author.username }}'s reply"><i class="fas fa-reply mr-1"></i> Reply</button>
+                          </div>
+                          <!-- Nested Reply Form -->
+                          <form method="post" action="{% url 'articles:add_reply' article.slug reply.id %}" class="reply-form-{{ reply.id }} hidden mt-3 ml-6 space-y-2 transition-all duration-300 ease-in-out">
+                            {% csrf_token %}
+                            <textarea name="content" rows="2" class="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white text-sm focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Write your reply..." required aria-label="Reply to {{ reply.author.username }}'s reply"></textarea>
+                            <div class="flex justify-end space-x-2">
+                              <button type="button" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-xs font-medium transition cancel-reply-button" data-comment-id="{{ reply.id }}">Cancel</button>
+                              <button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs font-medium transition">Post Reply</button>
+                            </div>
+                          </form>
+                        {% endif %}
+                      </div>
+                    {% endfor %}
+                  </div>
+                  <button type="button" class="text-xs text-blue-600 dark:text-blue-400 mt-2 ml-1 hover:underline toggle-replies-button" data-comment-id="{{ comment.id }}" data-reply-count="{{ comment.reply_count }}" aria-label="Toggle replies" aria-expanded="false">View all {{ comment.reply_count }} replies</button>
+                {% endif %}
+              </div>
+            {% endif %}
+          {% endwith %}
+        </div>
+      {% endfor %}
+      <!-- Hidden Comments (beyond the first 5) -->
+      {% if comments|length > 5 %}
+        <div id="hidden-comments" class="hidden transition-all duration-300 ease-in-out">
+          {% for comment in comments|slice:'5:' %}
+            <div class="bg-white dark:bg-gray-900 p-5 rounded-2xl shadow-sm mb-6 border border-gray-200 dark:border-gray-700 transition">
+              <div class="flex items-center mb-3">
+                {% comment %} <img src="https://ui-avatars.com/api/?name={{ comment.author.username }}&background=random" class="w-10 h-10 rounded-full mr-3" alt="{{ comment.author.username }}'s avatar" /> {% endcomment %}
+
+                {% if comment.author.profile_image %}
+                  <!-- Display image if it exists -->
+                  <img src="{{ comment.author.profile_image }}" alt="{{ comment.author.username }}'s profile picture" class="w-10 h-10 rounded-full object-cover mr-6 border-4 border-white dark:border-gray-800" />
+                {% else %}
+                  <!-- Fallback to first letter of username -->
+                  <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-3xl font-bold text-gray-600 dark:text-gray-300 mr-6 border-4 border-white dark:border-gray-800">{{ comment.author.username|make_list|first|upper }}</div>
+                {% endif %}
+
+                <div>
+                  <p class="font-semibold text-gray-900 dark:text-white">{{ comment.author.username }}</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ comment.created_at|date:'M d, Y, H:i' }}</p>
+                </div>
+              </div>
+              <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                {% if comment.parent %}
+                  <span class="font-semibold text-blue-600 dark:text-blue-400">@{{ comment.parent.author.username }}</span>
+                  {{ comment.content }}
+                {% else %}
+                  {{ comment.content }}
+                {% endif %}
+              </p>
+              {% if user.is_authenticated %}
+                <div class="mt-3 flex items-center justify-end space-x-3">
+                  <a href="{% url 'articles:report_comment' comment.id %}" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-500 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-600 dark:hover:text-red-400 transition" title="Report this comment" aria-label="Report comment"><i class="fas fa-flag mr-1"></i> Report</a>
+                  <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 dark:bg-blue-900/30 rounded-full hover:bg-blue-100 dark:hover:bg-blue-800/50 transition reply-button" data-comment-id="{{ comment.id }}" data-username="{{ comment.author.username }}" aria-label="Reply to {{ comment.author.username }}'s comment"><i class="fas fa-reply mr-1"></i> Reply</button>
+                </div>
+                <!-- Reply Form -->
+                <form method="post" action="{% url 'articles:add_reply' article.slug comment.id %}" class="reply-form-{{ comment.id }} hidden mt-4 ml-10 space-y-3 transition-all duration-300 ease-in-out">
+                  {% csrf_token %}
+                  <textarea name="content" rows="3" class="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white text-sm focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Write your reply..." required aria-label="Reply to {{ comment.author.username }}'s comment"></textarea>
+                  <div class="flex justify-end space-x-2">
+                    <button type="button" class="px-4 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium transition cancel-reply-button" data-comment-id="{{ comment.id }}">Cancel</button>
+                    <button type="submit" class="px-4 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium transition">Post Reply</button>
+                  </div>
+                </form>
+              {% endif %}
+              <!-- Replies -->
+              {% with replies=comment.approved_replies %}
+                {% if replies %}
+                  <div class="mt-4 ml-10">
+                    {% for reply in replies %}
+                      <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-xl border border-gray-200 dark:border-gray-700 mb-2">
+                        <div class="flex items-center mb-2">
+                          {% comment %} <img src="https://ui-avatars.com/api/?name={{ reply.author.username }}&background=random" class="w-8 h-8 rounded-full mr-2" alt="{{ reply.author.username }}'s avatar" /> {% endcomment %}
+                          {% if comment.author.profile_image %}
+                            <!-- Display image if it exists -->
+                            <img src="{{ comment.author.profile_image }}" alt="{{ comment.author.username }}'s profile picture" class="w-10 h-10 rounded-full object-cover mr-6 border-4 border-white dark:border-gray-800" />
+                          {% else %}
+                            <!-- Fallback to first letter of username -->
+                            <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-3xl font-bold text-gray-600 dark:text-gray-300 mr-6 border-4 border-white dark:border-gray-800">{{ comment.author.username|make_list|first|upper }}</div>
+                          {% endif %}
+
+                          <div>
+                            <p class="font-semibold text-sm text-gray-900 dark:text-white">{{ reply.author.username }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ reply.created_at|date:'M d, Y, H:i' }}</p>
+                          </div>
+                        </div>
+                        <p class="text-gray-700 dark:text-gray-300 text-sm ml-1">
+                          <span class="font-semibold text-blue-600 dark:text-blue-400">@{{ reply.parent.author.username }}</span>
+                          {{ reply.content }}
+                        </p>
+                        {% if user.is_authenticated %}
+                          <div class="mt-2 flex justify-end space-x-2">
+                            <a href="{% url 'articles:report_comment' reply.id %}" class="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-500 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-600 dark:hover:text-red-400 transition" title="Report this reply" aria-label="Report reply"><i class="fas fa-flag mr-1"></i> Report</a>
+                            <button type="button" class="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 dark:bg-blue-900/30 rounded-full hover:bg-blue-100 dark:hover:bg-blue-800/50 transition reply-button" data-comment-id="{{ reply.id }}" data-username="{{ reply.author.username }}" aria-label="Reply to {{ reply.author.username }}'s reply"><i class="fas fa-reply mr-1"></i> Reply</button>
+                          </div>
+                          <!-- Nested Reply Form -->
+                          <form method="post" action="{% url 'articles:add_reply' article.slug reply.id %}" class="reply-form-{{ reply.id }} hidden mt-3 ml-6 space-y-2 transition-all duration-300 ease-in-out">
+                            {% csrf_token %}
+                            <textarea name="content" rows="2" class="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white text-sm focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Write your reply..." required aria-label="Reply to {{ reply.author.username }}'s reply"></textarea>
+                            <div class="flex justify-end space-x-2">
+                              <button type="button" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-xs font-medium transition cancel-reply-button" data-comment-id="{{ reply.id }}">Cancel</button>
+                              <button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs font-medium transition">Post Reply</button>
+                            </div>
+                          </form>
+                        {% endif %}
+                      </div>
+                    {% endfor %}
+                    {% if comment.reply_count > 2 %}
+                      <div id="hidden-replies-{{ comment.id }}" class="hidden">
+                        {% for reply in replies|slice:'2:' %}
+                          <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-xl border border-gray-200 dark:border-gray-700 mb-2">
+                            <div class="flex items-center mb-2">
+                              {% comment %} <img src="https://ui-avatars.com/api/?name={{ reply.author.username }}&background=random" class="w-8 h-8 rounded-full mr-2" alt="{{ reply.author.username }}'s avatar" /> {% endcomment %}
+
+                              {% if comment.author.profile_image %}
+                                <!-- Display image if it exists -->
+                                <img src="{{ comment.author.profile_image }}" alt="{{ comment.author.username }}'s profile picture" class="w-10 h-10 rounded-full object-cover mr-6 border-4 border-white dark:border-gray-800" />
+                              {% else %}
+                                <!-- Fallback to first letter of username -->
+                                <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-3xl font-bold text-gray-600 dark:text-gray-300 mr-6 border-4 border-white dark:border-gray-800">{{ comment.author.username|make_list|first|upper }}</div>
+                              {% endif %}
+                              <div>
+                                <p class="font-semibold text-sm text-gray-900 dark:text-white">{{ reply.author.username }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ reply.created_at|date:'M d, Y, H:i' }}</p>
+                              </div>
+                            </div>
+                            <p class="text-gray-700 dark:text-gray-300 text-sm ml-1">
+                              <span class="font-semibold text-blue-600 dark:text-blue-400">@{{ reply.parent.author.username }}</span>
+                              {{ reply.content }}
+                            </p>
+                            {% if user.is_authenticated %}
+                              <div class="mt-2 flex justify-end space-x-2">
+                                <a href="{% url 'articles:report_comment' reply.id %}" class="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-500 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-600 dark:hover:text-red-400 transition" title="Report this reply" aria-label="Report reply"><i class="fas fa-flag mr-1"></i> Report</a>
+                                <button type="button" class="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 dark:bg-blue-900/30 rounded-full hover:bg-blue-100 dark:hover:bg-blue-800/50 transition reply-button" data-comment-id="{{ reply.id }}" data-username="{{ reply.author.username }}" aria-label="Reply to {{ reply.author.username }}'s reply"><i class="fas fa-reply mr-1"></i> Reply</button>
+                              </div>
+                              <!-- Nested Reply Form -->
+                              <form method="post" action="{% url 'articles:add_reply' article.slug reply.id %}" class="reply-form-{{ reply.id }} hidden mt-3 ml-6 space-y-2 transition-all duration-300 ease-in-out">
+                                {% csrf_token %}
+                                <textarea name="content" rows="2" class="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white text-sm focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Write your reply..." required aria-label="Reply to {{ reply.author.username }}'s reply"></textarea>
+                                <div class="flex justify-end space-x-2">
+                                  <button type="button" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-xs font-medium transition cancel-reply-button" data-comment-id="{{ reply.id }}">Cancel</button>
+                                  <button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs font-medium transition">Post Reply</button>
+                                </div>
+                              </form>
+                            {% endif %}
+                          </div>
+                        {% endfor %}
+                      </div>
+                      <button type="button" class="text-xs text-blue-600 dark:text-blue-400 mt-2 ml-1 hover:underline toggle-replies-button" data-comment-id="{{ comment.id }}" data-reply-count="{{ comment.reply_count }}" aria-label="Toggle replies" aria-expanded="false">View all {{ comment.reply_count }} replies</button>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              {% endwith %}
+            </div>
+          {% endfor %}
+          <!-- Show Less Button -->
+          <div id="show-less-button" class="hidden text-center mt-4">
+            <button type="button" class="text-sm text-blue-600 dark:text-blue-400 font-medium px-4 py-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition" aria-label="Show fewer comments">Show Less</button>
+          </div>
+        </div>
+        <!-- Show More Button -->
+        <div class="text-center mt-4">
+          <button id="show-more-button" type="button" class="text-sm text-blue-600 dark:text-blue-400 font-medium px-4 py-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition" aria-label="Show more comments">Show More ({{ comments|length|add:-5 }})</button>
+        </div>
+      {% endif %}
+    {% else %}
+      <p class="text-gray-600 dark:text-gray-400 text-center italic">No comments yet. Be the first to share your thoughts!</p>
+    {% endif %}
+    <!-- Recommended Articles -->
+    <h3 class="mt-10 mb-6 text-2xl font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-3">Recommended Articles</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      {% for rec in recommendations %}
+        <div class="group bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition">
+          <a href="{% url 'articles:article_detail' rec.slug %}">
+            {% if rec.featured_image %}
+              <img src="{{ rec.featured_image.url }}" alt="{{ rec.title }}" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300" />
+            {% else %}
+              <div class="w-full h-56 bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400 text-sm">No Image</div>
+            {% endif %}
+          </a>
+          <div class="p-5">
+            <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"><a href="{% url 'articles:article_detail' rec.slug %}">{{ rec.title }}</a></h4>
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+              <i class="fas fa-user mr-1"></i> {{ rec.author.username|capfirst }} •
+              <time datetime="{{ rec.created_at|date:'Y-m-d' }}">{{ rec.created_at|date:'M d, Y' }}</time>
+            </p>
+          </div>
+        </div>
+      {% empty %}
+        <p class="text-gray-600 dark:text-gray-400 text-center py-6 col-span-full">No recommendations available.</p>
+      {% endfor %}
+    </div>
+  </div>
+  <!-- JavaScript for Interactions -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Like Button
+      const likeBtn = document.getElementById('like-button')
+      const likeCount = document.getElementById('like-count')
+      likeBtn?.addEventListener('click', () => {
+        fetch("{% url 'articles:toggle_like' article.slug %}", {
+          method: 'POST',
+          headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json' }
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            const icon = likeBtn.querySelector('i')
+            if (data.liked) {
+              icon.classList.remove('far')
+              icon.classList.add('fas', 'text-red-500')
+              icon.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.3)' }, { transform: 'scale(1)' }], { duration: 300, easing: 'ease-out' })
+            } else {
+              icon.classList.remove('fas', 'text-red-500')
+              icon.classList.add('far')
+            }
+            likeCount.textContent = data.like_count
+          })
+      })
+    
+      // Bookmark Button
+      const bookmarkBtn = document.getElementById('bookmark-button')
+      const bookmarkCount = document.getElementById('bookmark-count')
+      bookmarkBtn?.addEventListener('click', () => {
+        fetch("{% url 'articles:toggle_bookmark' article.slug %}", {
+          method: 'POST',
+          headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json' }
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            const icon = bookmarkBtn.querySelector('i')
+            if (data.bookmarked) {
+              icon.classList.remove('far')
+              icon.classList.add('fas', 'text-yellow-500')
+              icon.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.3)' }, { transform: 'scale(1)' }], { duration: 300, easing: 'ease-out' })
+            } else {
+              icon.classList.remove('fas', 'text-yellow-500')
+              icon.classList.add('far')
+            }
+            bookmarkCount.textContent = data.bookmark_count
+          })
+      })
+    
+      // Toggle Reply Form with @username
+      document.querySelectorAll('.reply-button').forEach((button) => {
+        button.addEventListener('click', () => {
+          const id = button.dataset.commentId
+          const username = button.dataset.username
+          const form = document.querySelector(`.reply-form-${id}`)
+          const textarea = form?.querySelector('textarea')
+          // Close other open reply forms
+          document.querySelectorAll('.reply-form').forEach((otherForm) => {
+            if (otherForm !== form) otherForm.classList.add('hidden')
+          })
+          // Toggle the selected form
+          if (form) {
+            form.classList.toggle('hidden')
+            if (!form.classList.contains('hidden')) {
+              textarea.value = `@${username} `
+              textarea.focus()
+              textarea.setSelectionRange(textarea.value.length, textarea.value.length)
+              form.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            } else {
+              textarea.value = ''
+            }
+          }
+        })
+      })
+    
+      // Cancel Reply Form
+      document.querySelectorAll('.cancel-reply-button').forEach((button) => {
+        button.addEventListener('click', () => {
+          const id = button.dataset.commentId
+          const form = document.querySelector(`.reply-form-${id}`)
+          form.classList.add('hidden')
+          form.querySelector('textarea').value = ''
+        })
+      })
+    
+      // Toggle Replies
+      document.querySelectorAll('.toggle-replies-button').forEach((button) => {
+        button.addEventListener('click', () => {
+          const id = button.dataset.commentId
+          const section = document.getElementById(`hidden-replies-${id}`)
+          if (section.classList.contains('hidden')) {
+            section.classList.remove('hidden')
+            button.textContent = 'Hide replies'
+            button.setAttribute('aria-expanded', 'true')
+          } else {
+            section.classList.add('hidden')
+            button.textContent = `View all ${button.dataset.replyCount} replies`
+            button.setAttribute('aria-expanded', 'false')
+          }
+        })
+      })
+    
+      // Show More/Show Less Comments
+      const showMoreButton = document.getElementById('show-more-button')
+      const showLessButton = document.getElementById('show-less-button')
+      const hiddenComments = document.getElementById('hidden-comments')
+    
+      if (showMoreButton) {
+        showMoreButton.addEventListener('click', () => {
+          hiddenComments.classList.remove('hidden')
+          showMoreButton.classList.add('hidden')
+          showLessButton.classList.remove('hidden')
+          hiddenComments.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        })
+      }
+    
+      if (showLessButton) {
+        showLessButton.addEventListener('click', () => {
+          hiddenComments.classList.add('hidden')
+          showMoreButton.classList.remove('hidden')
+          showLessButton.classList.add('hidden')
+        })
+      }
+    })
+  </script>
+{% endblock %}

@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PrajnaLogica | Wisdom & Logic in Data</title>
+    {% comment %} <meta name="description"
+      content="{% block meta_description %}
+        DataPros Community Blog for Data Professionals
+      {% endblock %}" />
+    <meta name="keywords"
+      content="{% block meta_keywords %}
+        data science, analytics, machine learning, blog
+      {% endblock %}" />
+    <meta name="author"
+      content="{% block meta_author %}
+        DataPros
+      {% endblock %}" /> {% endcomment %}
+
+    <meta name="description"
+      content="{% block meta_description %}
+        PrajnaLogica: An interdisciplinary hub exploring the convergence of Data Science, AI, and Mathematics with the deep insights of Philosophy and History.
+      {% endblock %}" />
+    <meta name="keywords"
+      content="{% block meta_keywords %}
+        data science, AI, machine learning, philosophy of technology, mathematics, history of science, logic
+      {% endblock %}" />
+    <meta name="author"
+      content="{% block meta_author %}
+        PrajnaLogica
+      {% endblock %}" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/5e7aeae22a.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: '#9333ea', // Purple-600
+              secondary: '#a855f7' // Purple-500
+            }
+          }
+        }
+      }
+    </script>
+
+    <style>
+      /* Apply a smooth transition for dark mode changes */
+      body {
+        transition: background-color 0.3s, color 0.3s;
+      }
+      
+      /* Remove default container constraints */
+      .full-width-content {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen flex flex-col">
+    <nav id="main-navbar" class="sticky top-0 z-50 backdrop-blur-md bg-white/90 dark:bg-gray-800/90 shadow-lg border-b border-gray-200 dark:border-gray-700 transition duration-300">
+      <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+        <a class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent hover:from-purple-700 hover:to-indigo-700 transition" href="/">PrajnaLogica</a>
+
+        <div class="flex items-center space-x-4">
+          <form class="flex" action="{% url 'articles:search' %}" method="get">
+            <input class="px-4 py-2 border-2 border-gray-200 dark:border-gray-600 rounded-l-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white transition duration-150 outline-none" type="search" name="q" placeholder="Search articles..." aria-label="Search" />
+            <button class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-r-xl hover:from-purple-700 hover:to-indigo-700 transition duration-150" type="submit"><i class="fa fa-search"></i></button>
+          </form>
+
+          <button id="theme-toggle" class="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition duration-150" aria-label="Toggle theme"><i id="theme-icon" class="fa fa-moon-o text-xl"></i></button>
+        </div>
+
+        <div class="flex items-center space-x-6">
+          <a class="relative text-gray-700 dark:text-gray-200 hover:text-purple-600 dark:hover:text-purple-400 transition duration-300 font-medium before:content-[''] before:absolute before:w-0 before:h-[2px] before:bottom-0 before:left-0 before:bg-purple-600 before:transition-all before:duration-300 hover:before:w-full" href="{% url 'articles:article_list' %}">Articles</a>
+
+          {% if user.is_authenticated %}
+            <span class="text-sm text-gray-500 dark:text-gray-400">Welcome, <span class="font-semibold text-purple-600 dark:text-purple-400">{{ user.username }}</span>!</span>
+            <a class="relative text-gray-700 dark:text-gray-200 hover:text-purple-600 dark:hover:text-purple-400 transition duration-300 font-medium before:content-[''] before:absolute before:w-0 before:h-[2px] before:bottom-0 before:left-0 before:bg-purple-600 before:transition-all before:duration-300 hover:before:w-full" href="{% url 'users:user_profile' user.username %}">Profile</a>
+            <a class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition duration-150 font-semibold shadow-lg shadow-purple-500/30" href="{% url 'articles:article_create' %}">Write Article</a>
+            <a class="relative text-gray-700 dark:text-gray-200 hover:text-red-600 transition duration-300 font-medium before:content-[''] before:absolute before:w-0 before:h-[2px] before:bottom-0 before:left-0 before:bg-red-600 before:transition-all before:duration-300 hover:before:w-full" href="{% url 'account_logout' %}">Logout</a>
+          {% else %}
+            <a class="relative text-gray-700 dark:text-gray-200 hover:text-purple-600 dark:hover:text-purple-400 transition duration-300 font-medium before:content-[''] before:absolute before:w-0 before:h-[2px] before:bottom-0 before:left-0 before:bg-purple-600 before:transition-all before:duration-300 hover:before:w-full" href="{% url 'account_login' %}">Login</a>
+            <a class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition duration-150 font-semibold shadow-lg shadow-purple-500/30" href="{% url 'account_signup' %}">Sign Up</a>
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+
+    <main class="flex-grow">
+      {% block content %}
+
+      {% endblock %}
+    </main>
+
+    {% comment %} <footer class="mt-12 py-10 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+      <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-5 gap-8 text-center md:text-left">
+        <!-- About Section -->
+        <div class="md:col-span-1">
+          <h3 class="text-lg font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-2">About DataPros</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">DataPros Community Blog is a hub for tech and data enthusiasts to share knowledge, tutorials, and research. Connect, learn, and grow with our community.</p>
+          <a href="{% url 'about' %}" class="text-sm text-purple-600 hover:text-purple-700 hover:underline mt-2 inline-block font-medium">Learn More</a>
+        </div>
+
+        <!-- Quick Links -->
+        <div>
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">Quick Links</h3>
+          <ul class="space-y-1 text-sm">
+            <li>
+              <a href="{% url 'articles:article_list' %}" class="text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition duration-200">Articles</a>
+            </li>
+            <li>
+              <a href="{% url 'about' %}" class="text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition duration-200">About Us</a>
+            </li>
+            <li>
+              <a href="{% url 'contact' %}" class="text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition duration-200">Contact</a>
+            </li>
+            <li>
+              <a href="{% url 'community_guidelines' %}" class="text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition duration-200">Community Guidelines</a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Legal Links -->
+        <div>
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">Legal</h3>
+          <ul class="space-y-1 text-sm">
+            <li>
+              <a href="{% url 'terms' %}" class="text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition duration-200">Terms & Conditions</a>
+            </li>
+            <li>
+              <a href="{% url 'privacy' %}" class="text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition duration-200">Privacy Policy</a>
+            </li>
+            <li>
+              <a href="{% url 'cookies' %}" class="text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition duration-200">Cookie Policy</a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Social Links -->
+        <div>
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">Follow Us</h3>
+          <div class="flex space-x-4 justify-center md:justify-start">
+            <a href="#" aria-label="Twitter" class="text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition transform hover:-translate-y-1 hover:scale-110 duration-200"><i class="fa fa-twitter text-xl"></i></a>
+            <a href="#" aria-label="LinkedIn" class="text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition transform hover:-translate-y-1 hover:scale-110 duration-200"><i class="fa fa-linkedin text-xl"></i></a>
+            <a href="#" aria-label="GitHub" class="text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition transform hover:-translate-y-1 hover:scale-110 duration-200"><i class="fa fa-github text-xl"></i></a>
+          </div>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-4">
+            &copy;<script>
+                    document.write(new Date().getFullYear())
+                  </script> DataPros Blog. All rights reserved.
+          </p>
+        </div>
+
+        <!-- Newsletter Signup -->
+        <div class="md:col-span-1">
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">Newsletter</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Subscribe to receive the latest articles and community updates directly to your inbox.</p>
+          <form class="flex flex-col sm:flex-row items-center gap-2">
+            <input type="email" placeholder="Your email" required class="w-full sm:flex-1 px-4 py-2 rounded-xl border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 transition duration-200" />
+            <button type="submit" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 hover:scale-105 transform transition duration-200 w-full sm:w-auto font-semibold shadow-lg shadow-purple-500/30">Subscribe</button>
+          </form>
+        </div>
+      </div>
+    </footer> {% endcomment %}
+    <footer class="mt-12 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
+        <div class="container mx-auto px-6 py-10 border-b border-gray-100 dark:border-gray-800">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
+                <div class="max-w-md">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">PrajnaLogica Insight Digest</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Join a community of scholars and professionals decoding the logic of reality. Weekly deep dives into AI ethics and technical trends.</p>
+                </div>
+                <form class="flex w-full md:w-auto max-w-sm gap-2">
+                    <input type="email" placeholder="Scholar email address" required 
+                          class="flex-grow px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 dark:bg-gray-800 focus:ring-2 focus:ring-purple-500 outline-none transition duration-200" />
+                    <button type="submit" 
+                            class="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-bold hover:scale-105 transition shadow-lg shadow-purple-500/20">
+                        Subscribe
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="container mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12">
+            <div class="col-span-2 lg:col-span-2">
+                <h3 class="text-2xl font-black bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-4">PrajnaLogica</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed max-w-xs mb-4">
+                    A polymathic sanctuary for the synthesis of supreme insight (Prajna) and logical rigor (Logica). Bridging the technical 'How' with the philosophical 'Why'.
+                </p>
+                <a href="{% url 'about' %}" class="text-sm text-purple-600 hover:text-purple-700 font-semibold inline-flex items-center gap-1 group transition">
+                    Our Philosophy
+                    <svg class="w-4 h-4 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                </a>
+            </div>
+
+            <div>
+                <h4 class="text-xs font-bold uppercase tracking-widest text-gray-900 dark:text-white mb-6">Knowledge Hub</h4>
+                <ul class="space-y-4 text-sm font-medium">
+                    <li><a href="{% url 'articles:article_list' %}" class="text-gray-500 dark:text-gray-400 hover:text-purple-600 transition">Article Archive</a></li>
+                    <li><a href="#" class="text-gray-500 dark:text-gray-400 hover:text-purple-600 transition">Ethics of AI</a></li>
+                    <li><a href="#" class="text-gray-500 dark:text-gray-400 hover:text-purple-600 transition">History of Logic</a></li>
+                    <li><a href="#" class="text-gray-500 dark:text-gray-400 hover:text-purple-600 transition">Mathematical Proofs</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-xs font-bold uppercase tracking-widest text-gray-900 dark:text-white mb-6">Community</h4>
+                <ul class="space-y-4 text-sm font-medium">
+                    <li><a href="{% url 'about' %}" class="text-gray-500 dark:text-gray-400 hover:text-purple-600 transition">About the Project</a></li>
+                    <li><a href="{% url 'contact' %}" class="text-gray-500 dark:text-gray-400 hover:text-purple-600 transition">Contact Us</a></li>
+                    <li><a href="{% url 'community_guidelines' %}" class="text-gray-500 dark:text-gray-400 hover:text-purple-600 transition">Guidelines</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-xs font-bold uppercase tracking-widest text-gray-900 dark:text-white mb-6">Legal</h4>
+                <ul class="space-y-4 text-sm font-medium">
+                    <li><a href="{% url 'terms' %}" class="text-gray-500 dark:text-gray-400 hover:text-purple-600 transition">Terms of Inquiry</a></li>
+                    <li><a href="{% url 'privacy' %}" class="text-gray-500 dark:text-gray-400 hover:text-purple-600 transition">Privacy Policy</a></li>
+                    <li><a href="{% url 'cookies' %}" class="text-gray-500 dark:text-gray-400 hover:text-purple-600 transition">Data Ethics</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="bg-gray-50 dark:bg-gray-900/50 py-6 border-t border-gray-100 dark:border-gray-800">
+            <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                    &copy; <script>document.write(new Date().getFullYear())</script> PrajnaLogica. All rights reserved.
+                </p>
+                <div class="flex items-center space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-purple-600 transition duration-300"><i class="fa fa-twitter text-lg"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-purple-600 transition duration-300"><i class="fa fa-linkedin text-lg"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-purple-600 transition duration-300"><i class="fa fa-github text-lg"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    {% if user.is_authenticated %}
+      <div id="notification" class="position-fixed top-0 end-0 fixed top-4 right-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-xl shadow-2xl transition duration-300 transform translate-x-full opacity-0" style="z-index: 1050;"></div>
+
+      <script>
+        const socket = new WebSocket('ws://127.0.0.1:8000/ws/notifications/')
+        
+        socket.onopen = () => {
+          console.log('✅ WebSocket connected')
+        }
+        
+        socket.onmessage = function (event) {
+          const data = JSON.parse(event.data)
+          const notificationDiv = document.getElementById('notification')
+        
+          notificationDiv.textContent = data.message
+        
+          // Show notification with transition
+          notificationDiv.classList.remove('translate-x-full', 'opacity-0')
+          notificationDiv.classList.add('translate-x-0', 'opacity-100')
+        
+          // Auto hide after 5 seconds
+          setTimeout(() => {
+            notificationDiv.classList.remove('translate-x-0', 'opacity-100')
+            notificationDiv.classList.add('translate-x-full', 'opacity-0')
+          }, 5000)
+        }
+        
+        socket.onclose = function (event) {
+          console.warn('WebSocket closed:', event)
+        }
+        
+        socket.onerror = function (error) {
+          console.error('WebSocket error:', error)
+        }
+      </script>
+    {% endif %}
+
+    <script>
+      const themeToggle = document.getElementById('theme-toggle')
+      const themeIcon = document.getElementById('theme-icon')
+      const htmlElement = document.documentElement
+      
+      // 1. Check for stored theme preference on load
+      const currentTheme = localStorage.getItem('theme')
+      if (currentTheme) {
+        htmlElement.classList.add(currentTheme)
+      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // Fallback to system preference
+        htmlElement.classList.add('dark')
+      } else {
+        htmlElement.classList.add('light') // Explicitly set default
+      }
+      
+      // 2. Set the initial icon based on the active theme
+      function updateThemeIcon() {
+        if (htmlElement.classList.contains('dark')) {
+          themeIcon.classList.remove('fa-moon-o')
+          themeIcon.classList.add('fa-sun-o')
+        } else {
+          themeIcon.classList.remove('fa-sun-o')
+          themeIcon.classList.add('fa-moon-o')
+        }
+      }
+      updateThemeIcon() // Call immediately on load
+      
+      // 3. Theme Toggle functionality
+      themeToggle.addEventListener('click', () => {
+        if (htmlElement.classList.contains('dark')) {
+          // Switch to light mode
+          htmlElement.classList.remove('dark')
+          htmlElement.classList.add('light')
+          localStorage.setItem('theme', 'light')
+        } else {
+          // Switch to dark mode
+          htmlElement.classList.remove('light')
+          htmlElement.classList.add('dark')
+          localStorage.setItem('theme', 'dark')
+        }
+        updateThemeIcon()
+      })
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
+{% comment %} 
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PrajnaLogica | Wisdom & Logic in Data</title>
+    <meta name="description"
+      content="{% block meta_description %}
+        PrajnaLogica: An interdisciplinary hub exploring the convergence of Data Science, AI, and Mathematics with the deep insights of Philosophy and History.
+      {% endblock %}" />
+    <meta name="keywords"
+      content="{% block meta_keywords %}
+        data science, AI, machine learning, philosophy of technology, mathematics, history of science, logic
+      {% endblock %}" />
+    <meta name="author"
+      content="{% block meta_author %}
+        PrajnaLogica
+      {% endblock %}" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/5e7aeae22a.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: '#9333ea', // Purple-600
+              secondary: '#a855f7' // Purple-500
+            }
+          }
+        }
+      }
+    </script>
+
+    <style>
+      body { transition: background-color 0.3s, color 0.3s; }
+     .full-width-content { max-width: 100%!important; padding: 0!important; margin: 0!important; }
+    </style>
+  </head>
+
+  <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen flex flex-col">
+    <nav id="main-navbar" class="sticky top-0 z-50 backdrop-blur-md bg-white/90 dark:bg-gray-800/90 shadow-lg border-b border-gray-200 dark:border-gray-700 transition duration-300">
+      <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+        <a class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent hover:from-purple-700 hover:to-indigo-700 transition" href="/">PrajnaLogica</a>
+
+        <div class="flex items-center space-x-4">
+          <form class="flex" action="{% url 'articles:search' %}" method="get">
+            <input class="px-4 py-2 border-2 border-gray-200 dark:border-gray-600 rounded-l-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white transition duration-150 outline-none" type="search" name="q" placeholder="Explore logic & wisdom..." aria-label="Search" />
+            <button class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-r-xl hover:from-purple-700 hover:to-indigo-700 transition duration-150" type="submit"><i class="fa fa-search"></i></button>
+          </form>
+
+          <button id="theme-toggle" class="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition duration-150" aria-label="Toggle theme"><i id="theme-icon" class="fa fa-moon-o text-xl"></i></button>
+        </div>
+
+        <div class="flex items-center space-x-6">
+          <a class="relative text-gray-700 dark:text-gray-200 hover:text-purple-600 dark:hover:text-purple-400 transition duration-300 font-medium before:content-[''] before:absolute before:w-0 before:h-[2px] before:bottom-0 before:left-0 before:bg-purple-600 before:transition-all before:duration-300 hover:before:w-full" href="{% url 'articles:article_list' %}">Articles</a>
+
+          {% if user.is_authenticated %}
+            <span class="text-sm text-gray-500 dark:text-gray-400">Welcome, <span class="font-semibold text-purple-600 dark:text-purple-400">{{ user.username }}</span>!</span>
+            <a class="relative text-gray-700 dark:text-gray-200 hover:text-purple-600 dark:hover:text-purple-400 transition duration-300 font-medium before:content-[''] before:absolute before:w-0 before:h-[2px] before:bottom-0 before:left-0 before:bg-purple-600 before:transition-all before:duration-300 hover:before:w-full" href="{% url 'users:user_profile' user.username %}">Profile</a>
+            <a class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition duration-150 font-semibold shadow-lg shadow-purple-500/30" href="{% url 'articles:article_create' %}">Publish</a>
+            <a class="relative text-gray-700 dark:text-gray-200 hover:text-red-600 transition duration-300 font-medium before:content-[''] before:absolute before:w-0 before:h-[2px] before:bottom-0 before:left-0 before:bg-red-600 before:transition-all before:duration-300 hover:before:w-full" href="{% url 'account_logout' %}">Logout</a>
+          {% else %}
+            <a class="relative text-gray-700 dark:text-gray-200 hover:text-purple-600 dark:hover:text-purple-400 transition duration-300 font-medium before:content-[''] before:absolute before:w-0 before:h-[2px] before:bottom-0 before:left-0 before:bg-purple-600 before:transition-all before:duration-300 hover:before:w-full" href="{% url 'account_login' %}">Login</a>
+            <a class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition duration-150 font-semibold shadow-lg shadow-purple-500/30" href="{% url 'account_signup' %}">Join Community</a>
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+
+    <main class="flex-grow">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="mt-12 py-10 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+      <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-5 gap-8 text-center md:text-left">
+        <div class="md:col-span-1">
+          <h3 class="text-lg font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-2">About PrajnaLogica</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">PrajnaLogica is a polymathic sanctuary dedicated to the synthesis of supreme insight (Prajna) and logical order (Logica). We bridge the 'How' of modern algorithms with the 'Why' of philosophical inquiry.</p>
+          <a href="{% url 'about' %}" class="text-sm text-purple-600 hover:text-purple-700 hover:underline mt-2 inline-block font-medium">Our Philosophy</a>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">Knowledge Hub</h3>
+          <ul class="space-y-1 text-sm">
+            <li><a href="{% url 'articles:article_list' %}" class="text-gray-600 dark:text-gray-300 hover:text-purple-600">Article Archive</a></li>
+            <li><a href="#" class="text-gray-600 dark:text-gray-300 hover:text-purple-600">Ethics of AI</a></li>
+            <li><a href="#" class="text-gray-600 dark:text-gray-300 hover:text-purple-600">History of Logic</a></li>
+            <li><a href="#" class="text-gray-600 dark:text-gray-300 hover:text-purple-600">Mathematical Proofs</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">Legal</h3>
+          <ul class="space-y-1 text-sm">
+            <li><a href="{% url 'terms' %}" class="text-gray-600 dark:text-gray-300 hover:text-purple-600">Terms of Inquiry</a></li>
+            <li><a href="{% url 'privacy' %}" class="text-gray-600 dark:text-gray-300 hover:text-purple-600">Privacy Policy</a></li>
+            <li><a href="{% url 'cookies' %}" class="text-gray-600 dark:text-gray-300 hover:text-purple-600">Data Usage</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">Follow the Journey</h3>
+          <div class="flex space-x-4 justify-center md:justify-start">
+            <a href="#" aria-label="Twitter" class="text-gray-500 hover:text-purple-600 transition transform hover:-translate-y-1"><i class="fa fa-twitter text-xl"></i></a>
+            <a href="#" aria-label="LinkedIn" class="text-gray-500 hover:text-purple-600 transition transform hover:-translate-y-1"><i class="fa fa-linkedin text-xl"></i></a>
+            <a href="#" aria-label="GitHub" class="text-gray-500 hover:text-purple-600 transition transform hover:-translate-y-1"><i class="fa fa-github text-xl"></i></a>
+          </div>
+          <p class="text-sm text-gray-500 mt-4">&copy; <script>document.write(new Date().getFullYear())</script> PrajnaLogica. All rights reserved.</p>
+        </div>
+
+        <div class="md:col-span-1">
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">Insight Digest</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Subscribe for weekly deep dives into technical trends and timeless wisdom.</p>
+          <form class="flex flex-col sm:flex-row items-center gap-2">
+            <input type="email" placeholder="Your email" required class="w-full sm:flex-1 px-4 py-2 rounded-xl border-2 dark:bg-gray-700 outline-none" />
+            <button type="submit" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:scale-105 transition font-semibold">Subscribe</button>
+          </form>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html> {% endcomment %}

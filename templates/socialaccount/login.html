@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white p-6 mt-10">
+    <h1 class="text-2xl font-bold text-indigo-600 mb-4 text-center">
+        Sign In via {{ provider.name|title }} 
+    </h1>
+    
+    <p class="text-center text-gray-700 mb-6">
+        You are about to sign in using your {{ provider.name|title }}  account.
+    </p>
+
+    <div class="flex justify-center space-x-4">
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="bg-indigo-600 text-white py-2 px-6 rounded-md hover:bg-indigo-700">
+                Continue
+            </button>
+        </form>
+        <a href="{% url 'account_login' %}" class="bg-gray-300 text-gray-800 py-2 px-6 rounded-md hover:bg-gray-400">
+            Cancel
+        </a>
+    </div>
+    
+</div>
+{% endblock %}

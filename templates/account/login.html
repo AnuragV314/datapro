@@ -1,0 +1,744 @@
+{% extends 'base.html' %}
+{% load socialaccount %}
+
+{% comment %} {% block content %}
+  <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold text-indigo-600 mb-4 text-center">Login</h1>
+
+    <!-- Normal email/password login -->
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700">Login</button>
+    </form>
+
+    <p class="mt-4 text-center">Or login with:</p>
+
+    <!-- Google login -->
+    <a href="{% provider_login_url 'google' %}" class="block text-center bg-red-600 text-white py-2 rounded-md hover:bg-red-700 mt-2">Login with Google</a>
+
+    <!-- Facebook login -->
+    <a href="{% provider_login_url 'facebook' %}" class="block text-center bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 mt-2">Login with Facebook</a>
+
+    <p class="mt-4 text-center">
+      <a href="{% url 'account_signup' %}" class="text-indigo-600 hover:underline">Sign Up</a> |
+      <a href="{% url 'account_reset_password' %}" class="text-indigo-600 hover:underline">Forgot Password?</a>
+    </p>
+  </div>
+{% endblock %} {% endcomment %}
+
+{% comment %}
+
+{% block content %}
+  <div class="min-h-[80vh] flex items-center justify-center px-4 py-12">
+    <div class="max-w-md w-full bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-gray-100 dark:border-gray-700">
+      <!-- Header -->
+      <div class="text-center mb-10">
+        <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-2">Welcome Back</h1>
+        <p class="text-gray-500 dark:text-gray-400">Please enter your details to sign in</p>
+      </div>
+
+      <!-- Form -->
+      <form method="post" class="space-y-5">
+        {% csrf_token %}
+
+        {% for field in form %}
+          <div>
+            <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">{{ field.label }}</label>
+
+            {{ field.as_widget|safe }}
+
+            {% if field.errors %}
+              <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+
+        <style>
+          /* Styling the auto-generated Django inputs */
+          input[type='text'],
+          input[type='password'],
+          input[type='email'] {
+            width: 100%;
+            padding: 0.65rem 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid #d1d5db; /* gray-300 */
+            background-color: transparent;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+          }
+          
+          /* Dark mode support */
+          .dark input[type='text'],
+          .dark input[type='password'],
+          .dark input[type='email'] {
+            border-color: #4b5563; /* gray-600 */
+            color: #ffffff;
+          }
+          
+          /* Focus state – blue theme */
+          input:focus {
+            outline: none;
+            border-color: #2563eb; /* blue-600 */
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+          }
+          
+          /* Placeholder color */
+          input::placeholder {
+            color: #9ca3af; /* gray-400 */
+          }
+        </style>
+
+        <!-- Submit -->
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all transform hover:scale-[1.01] active:scale-[0.99] shadow-lg shadow-blue-200 dark:shadow-none">Sign In</button>
+      </form>
+
+      <!-- Divider -->
+      <div class="relative my-8">
+        <div class="absolute inset-0 flex items-center">
+          <span class="w-full border-t border-gray-200 dark:border-gray-700"></span>
+        </div>
+        <div class="relative flex justify-center text-xs uppercase">
+          <span class="bg-white dark:bg-gray-800 px-4 text-gray-500 font-medium">Or continue with</span>
+        </div>
+      </div>
+
+      <!-- Social Login -->
+      <div class="space-y-3">
+        <a href="{% provider_login_url 'google' %}" class="flex items-center justify-center gap-3 w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white py-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors font-medium">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google" />
+          Google
+        </a>
+      </div>
+
+      <!-- Footer -->
+      <div class="mt-8 pt-6 border-t border-gray-100 dark:border-gray-700 text-center space-y-2">
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          Don't have an account?
+          <a href="{% url 'account_signup' %}" class="text-blue-600 hover:underline font-bold">Sign Up</a>
+        </p>
+
+        <a href="{% url 'account_reset_password' %}" class="block text-xs text-gray-400 hover:text-blue-600 transition-colors italic">Forgot your password?</a>
+      </div>
+    </div>
+  </div>
+{% endblock %} {% endcomment %}
+
+{% comment %} {% block content %}
+  <!-- Override container constraints -->
+  <style>
+    /* Remove any padding/margins from parent containers */
+    body {
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    .container,
+    .content-wrapper {
+      max-width: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    
+    /* Make the login section full viewport */
+    #full-screen-login {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 9999;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+  </style>
+
+  <div id="full-screen-login" class="flex">
+    <!-- Left Side - Visual/Brand Experience -->
+    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800 relative overflow-hidden">
+      <!-- Animated Background Pattern -->
+      <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-20 left-20 w-72 h-72 bg-white rounded-full mix-blend-overlay filter blur-3xl animate-blob"></div>
+        <div class="absolute top-40 right-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-overlay filter blur-3xl animate-blob animation-delay-2000"></div>
+        <div class="absolute bottom-20 left-40 w-72 h-72 bg-yellow-300 rounded-full mix-blend-overlay filter blur-3xl animate-blob animation-delay-4000"></div>
+      </div>
+
+      <!-- Content -->
+      <div class="relative z-10 flex flex-col justify-center px-16 text-white">
+        <div class="mb-8">
+          <h1 class="text-5xl font-black mb-4 tracking-tight">Data<span class="text-purple-200">Pros</span></h1>
+          <div class="w-20 h-1 bg-purple-300 rounded-full"></div>
+        </div>
+
+        <h2 class="text-4xl font-bold mb-6 leading-tight">
+          Transform Data Into<br />
+          <span class="text-purple-200">Strategic Insights</span>
+        </h2>
+
+        <p class="text-xl text-purple-100 mb-12 leading-relaxed max-w-md">Join thousands of data professionals exploring cutting-edge analytics, machine learning, and AI innovations.</p>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-3 gap-8 max-w-lg">
+          <div>
+            <div class="text-3xl font-bold mb-1">50K+</div>
+            <div class="text-sm text-purple-200">Active Readers</div>
+          </div>
+          <div>
+            <div class="text-3xl font-bold mb-1">1000+</div>
+            <div class="text-sm text-purple-200">Articles</div>
+          </div>
+          <div>
+            <div class="text-3xl font-bold mb-1">24/7</div>
+            <div class="text-sm text-purple-200">Access</div>
+          </div>
+        </div>
+
+        <!-- Decorative Elements -->
+        <div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/20 to-transparent"></div>
+      </div>
+    </div>
+
+    <!-- Right Side - Login Form -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center px-6 py-12 bg-white dark:bg-gray-900 overflow-y-auto">
+      <div class="w-full max-w-md">
+        <!-- Mobile Logo -->
+        <div class="lg:hidden text-center mb-8">
+          <h1 class="text-3xl font-bold"><span class="text-purple-600">Data</span><span class="text-gray-900 dark:text-white">Pros</span></h1>
+        </div>
+
+        <!-- Welcome Header -->
+        <div class="mb-8">
+          <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome back 👋</h2>
+          <p class="text-gray-600 dark:text-gray-400">Sign in to continue your learning journey</p>
+        </div>
+
+        <!-- Social Login First -->
+        <div class="mb-6">
+          <a href="{% provider_login_url 'google' %}" class="flex items-center justify-center gap-3 w-full bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-white py-4 rounded-2xl hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-gray-700 transition-all duration-300 font-semibold shadow-sm hover:shadow-lg group">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-6 h-6 group-hover:scale-110 transition-transform" alt="Google" />
+            Continue with Google
+          </a>
+        </div>
+
+        <!-- Divider -->
+        <div class="relative mb-6">
+          <div class="absolute inset-0 flex items-center">
+            <span class="w-full border-t border-gray-200 dark:border-gray-700"></span>
+          </div>
+          <div class="relative flex justify-center text-sm">
+            <span class="bg-white dark:bg-gray-900 px-4 text-gray-500 dark:text-gray-400 font-medium">Or sign in with email</span>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <form method="post" class="space-y-5">
+          {% csrf_token %}
+
+          {% for field in form %}
+            <div class="group">
+              <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">{{ field.label }}</label>
+
+              <div class="relative">
+                {{ field.as_widget|safe }}
+
+                <!-- Icon indicators -->
+                <div class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 transition-colors group-focus-within:text-purple-600">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+
+              {% if field.errors %}
+                <div class="mt-2 p-3 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 rounded-r-lg">
+                  <p class="text-red-600 dark:text-red-400 text-sm flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                    {{ field.errors.0 }}
+                  </p>
+                </div>
+              {% endif %}
+            </div>
+          {% endfor %}
+
+          <style>
+            /* Modern Input Styling */
+            input[type='text'],
+            input[type='password'],
+            input[type='email'] {
+              width: 100%;
+              padding: 1rem 3rem 1rem 1rem;
+              border-radius: 1rem;
+              border: 2px solid #e5e7eb;
+              background-color: #ffffff;
+              transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+              font-size: 1rem;
+              color: #111827;
+            }
+            
+            .dark input[type='text'],
+            .dark input[type='password'],
+            .dark input[type='email'] {
+              border-color: #374151;
+              background-color: #1f2937;
+              color: #ffffff;
+            }
+            
+            /* Focus Animation */
+            input:focus {
+              outline: none;
+              border-color: #9333ea;
+              background-color: #faf5ff;
+              box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.1), 0 10px 25px -5px rgba(147, 51, 234, 0.1);
+              transform: translateY(-2px);
+            }
+            
+            .dark input:focus {
+              background-color: #1f2937;
+              box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.2), 0 10px 25px -5px rgba(147, 51, 234, 0.2);
+            }
+            
+            input::placeholder {
+              color: #9ca3af;
+            }
+            
+            /* Animations */
+            @keyframes blob {
+              0%,
+              100% {
+                transform: translate(0, 0) scale(1);
+              }
+              33% {
+                transform: translate(30px, -50px) scale(1.1);
+              }
+              66% {
+                transform: translate(-20px, 20px) scale(0.9);
+              }
+            }
+            
+            .animate-blob {
+              animation: blob 7s infinite;
+            }
+            
+            .animation-delay-2000 {
+              animation-delay: 2s;
+            }
+            
+            .animation-delay-4000 {
+              animation-delay: 4s;
+            }
+          </style>
+
+          <!-- Remember & Forgot -->
+          <div class="flex items-center justify-between">
+            <label class="flex items-center gap-2 cursor-pointer group">
+              <input type="checkbox" name="remember" class="w-5 h-5 text-purple-600 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 cursor-pointer" />
+              <span class="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Keep me signed in</span>
+            </label>
+            <a href="{% url 'account_reset_password' %}" class="text-sm text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 font-semibold transition-colors">Forgot password?</a>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-4 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-2xl active:scale-[0.98] shadow-lg shadow-purple-500/30 relative overflow-hidden group">
+            <span class="relative z-10 flex items-center justify-center gap-2">
+              Sign In to DataPros<svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </span>
+            <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          </button>
+        </form>
+
+        <!-- Sign Up -->
+        <div class="mt-8 text-center">
+          <p class="text-gray-600 dark:text-gray-400">
+            New to DataPros?
+            <a href="{% url 'account_signup' %}" class="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-bold transition-colors ml-1 inline-flex items-center gap-1 group">
+              Create a free account<svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </a>
+          </p>
+        </div>
+
+        <!-- Trust Badges -->
+        <div class="mt-10 pt-8 border-t border-gray-200 dark:border-gray-700">
+          <div class="flex items-center justify-center gap-8 text-xs text-gray-500 dark:text-gray-400">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              <span>SSL Secured</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+              </svg>
+              <span>No Spam</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+              </svg>
+              <span>Free Forever</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %} {% endcomment %}
+
+{% block content %}
+  <!-- Override container constraints -->
+  <style>
+    /* Remove any padding/margins from parent containers */
+    body {
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    .container,
+    .content-wrapper {
+      max-width: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    
+    /* Make the login section full viewport */
+    #full-screen-login {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 9999;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+  </style>
+
+  <div id="full-screen-login" class="flex">
+    <!-- Left Side - Visual/Brand Experience -->
+    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800 relative overflow-hidden">
+      <!-- Animated Background Pattern -->
+      <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-20 left-20 w-72 h-72 bg-white rounded-full mix-blend-overlay filter blur-3xl animate-blob"></div>
+        <div class="absolute top-40 right-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-overlay filter blur-3xl animate-blob animation-delay-2000"></div>
+        <div class="absolute bottom-20 left-40 w-72 h-72 bg-yellow-300 rounded-full mix-blend-overlay filter blur-3xl animate-blob animation-delay-4000"></div>
+      </div>
+
+      <!-- Content -->
+      <div class="relative z-10 flex flex-col justify-center px-16 text-white">
+        <div class="mb-8">
+          <h1 class="text-5xl font-black mb-4 tracking-tight">Prajna<span class="text-purple-200">Logica</span></h1>
+          <div class="w-24 h-1 bg-purple-300 rounded-full"></div>
+        </div>
+
+        <h2 class="text-4xl font-bold mb-6 leading-tight">The Synthesis of <br /> <span class="text-purple-200">Logical Rigor and Supreme Insight</span></h2>
+
+        <p class="text-xl text-purple-100 mb-12 leading-relaxed max-w-md">Explore the intersection of Data Science, Mathematics, and the Philosophy of Technology. We bridge the 'How' of artificial intelligence with the 'Why' of philosophical inquiry, decoding the code of reality from its historical roots to its agentic future.[1, 2]</p>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-3 gap-8 max-w-lg">
+          <div>
+            <div class="text-3xl font-bold mb-1">50K+</div>
+            <div class="text-sm text-purple-200">Inquisitive Minds</div>
+          </div>
+          <div>
+            <div class="text-3xl font-bold mb-1">1000+</div>
+            <div class="text-sm text-purple-200">Interdisciplinary Treatises</div>
+          </div>
+          <div>
+            <div class="text-3xl font-bold mb-1">24/7</div>
+            <div class="text-sm text-purple-200">Universal Access</div>
+          </div>
+        </div>
+
+        <!-- Decorative Elements -->
+        <div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/20 to-transparent"></div>
+      </div>
+    </div>
+
+    <!-- Right Side - Login Form -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center px-6 py-12 bg-white dark:bg-gray-900 overflow-y-auto">
+      <div class="w-full max-w-md">
+        <!-- Mobile Logo -->
+        <div class="lg:hidden text-center mb-8">
+          <h1 class="text-3xl font-bold"><span class="text-purple-600">Prajna</span><span class="text-gray-900 dark:text-white">Logica</span></h1>
+        </div>
+
+        <!-- Welcome Header -->
+        <div class="mb-8">
+          <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome back, Polymath 👋</h2>
+          <p class="text-gray-600 dark:text-gray-400">Sign in to continue your journey through the landscape of logic and wisdom.</p>
+        </div>
+
+        <!-- Social Login First -->
+        <div class="mb-6">
+          <a href="{% provider_login_url 'google' %}" class="flex items-center justify-center gap-3 w-full bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-white py-4 rounded-2xl hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-gray-700 transition-all duration-300 font-semibold shadow-sm hover:shadow-lg group">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-6 h-6 group-hover:scale-110 transition-transform" alt="Google" />
+            Continue with Google
+          </a>
+        </div>
+
+        <!-- Divider -->
+        <div class="relative mb-6">
+          <div class="absolute inset-0 flex items-center">
+            <span class="w-full border-t border-gray-200 dark:border-gray-700"></span>
+          </div>
+          <div class="relative flex justify-center text-sm">
+            <span class="bg-white dark:bg-gray-900 px-4 text-gray-500 dark:text-gray-400 font-medium">Or sign in with email</span>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <form method="post" class="space-y-5">
+          {% csrf_token %}
+
+          {% for field in form %}
+            <div class="group">
+              {% if field.field.widget.input_type == 'checkbox' %}
+                <!-- Checkbox field (Remember Me) -->
+                <label for="{{ field.id_for_label }}" class="flex items-center justify-start cursor-pointer group-checkbox">
+                  <span class="pr-6 text-sm font-medium text-gray-700 dark:text-gray-300 group-checkbox-hover:text-gray-900 dark:group-checkbox-hover:text-white transition-colors">{{ field.label }}</span>
+                  {{ field.as_widget|safe }}
+                </label>
+              {% else %}
+                <!-- Regular input fields -->
+                <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">{{ field.label }}</label>
+
+                <div class="relative">
+                  {{ field.as_widget|safe }}
+
+                  <!-- Password toggle button -->
+                  {% if field.field.widget.input_type == 'password' %}
+                    <button type="button" onclick="togglePassword(this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-600 transition-colors focus:outline-none">
+                      <!-- Eye icon (show password) -->
+                      <svg class="w-5 h-5 eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      <!-- Eye slash icon (hide password) -->
+                      <svg class="w-5 h-5 eye-closed hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                      </svg>
+                    </button>
+                  {% else %}
+                    <!-- Icon indicators for other fields -->
+                    <div class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 transition-colors group-focus-within:text-purple-600">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  {% endif %}
+                </div>
+              {% endif %}
+
+              {% if field.errors %}
+                <div class="mt-2 p-3 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 rounded-r-lg">
+                  <p class="text-red-600 dark:text-red-400 text-sm flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                    {{ field.errors.0 }}
+                  </p>
+                </div>
+              {% endif %}
+            </div>
+          {% endfor %}
+
+          <style>
+            /* Modern Input Styling */
+            input[type='text'],
+            input[type='password'],
+            input[type='email'] {
+              width: 100%;
+              padding: 1rem 3rem 1rem 1rem;
+              border-radius: 1rem;
+              border: 2px solid #e5e7eb;
+              background-color: #ffffff;
+              transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+              font-size: 1rem;
+              color: #111827;
+            }
+            
+            .dark input[type='text'],
+            .dark input[type='password'],
+            .dark input[type='email'] {
+              border-color: #374151;
+              background-color: #1f2937;
+              color: #ffffff;
+            }
+            
+            /* Focus Animation */
+            input:focus {
+              outline: none;
+              border-color: #9333ea;
+              background-color: #faf5ff;
+              box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.1), 0 10px 25px -5px rgba(147, 51, 234, 0.1);
+              transform: translateY(-2px);
+            }
+            
+            .dark input:focus {
+              background-color: #1f2937;
+              box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.2), 0 10px 25px -5px rgba(147, 51, 234, 0.2);
+            }
+            
+            input::placeholder {
+              color: #9ca3af;
+            }
+            
+            /* Checkbox Styling for Remember Me */
+            input[type='checkbox'] {
+              width: 1.25rem;
+              height: 1.25rem;
+              border: 2px solid #d1d5db;
+              border-radius: 0.5rem;
+              background-color: #ffffff;
+              cursor: pointer;
+              transition: all 0.2s ease;
+              appearance: none;
+              -webkit-appearance: none;
+              position: relative;
+            }
+            
+            .dark input[type='checkbox'] {
+              border-color: #4b5563;
+              background-color: #1f2937;
+            }
+            
+            input[type='checkbox']:checked {
+              background-color: #9333ea;
+              border-color: #9333ea;
+            }
+            
+            input[type='checkbox']:checked::after {
+              content: '';
+              position: absolute;
+              left: 0.3rem;
+              top: 0.05rem;
+              width: 0.4rem;
+              height: 0.7rem;
+              border: solid white;
+              border-width: 0 2px 2px 0;
+              transform: rotate(45deg);
+            }
+            
+            input[type='checkbox']:hover {
+              border-color: #9333ea;
+            }
+            
+            input[type='checkbox']:focus {
+              outline: none;
+              box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.2);
+            }
+            
+            /* Hide the checkbox wrapper label's styling */
+            #id_remember {
+              margin: 0;
+            }
+            
+            /* Animations */
+            @keyframes blob {
+              0%,
+              100% {
+                transform: translate(0, 0) scale(1);
+              }
+              33% {
+                transform: translate(30px, -50px) scale(1.1);
+              }
+              66% {
+                transform: translate(-20px, 20px) scale(0.9);
+              }
+            }
+            
+            .animate-blob {
+              animation: blob 7s infinite;
+            }
+            
+            .animation-delay-2000 {
+              animation-delay: 2s;
+            }
+            
+            .animation-delay-4000 {
+              animation-delay: 4s;
+            }
+          </style>
+
+          <script>
+            function togglePassword(button) {
+              const input = button.parentElement.querySelector('input')
+              const eyeOpen = button.querySelector('.eye-open')
+              const eyeClosed = button.querySelector('.eye-closed')
+            
+              if (input.type === 'password') {
+                input.type = 'text'
+                eyeOpen.classList.add('hidden')
+                eyeClosed.classList.remove('hidden')
+              } else {
+                input.type = 'password'
+                eyeOpen.classList.remove('hidden')
+                eyeClosed.classList.add('hidden')
+              }
+            }
+          </script>
+
+          <!-- Forgot Password -->
+          <div class="flex items-center justify-end">
+            <a href="{% url 'account_reset_password' %}" class="text-sm text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 font-semibold transition-colors">Forgot password?</a>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-4 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-2xl active:scale-[0.98] shadow-lg shadow-purple-500/30 relative overflow-hidden group">
+            <span class="relative z-10 flex items-center justify-center gap-2">
+              Access the PrajnaLogica Archive<svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </span>
+            <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          </button>
+        </form>
+
+        <!-- Sign Up -->
+        <div class="mt-8 text-center">
+          <p class="text-gray-600 dark:text-gray-400">
+            New to PrajnaLogica?
+            <a href="{% url 'account_signup' %}" class="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-bold transition-colors ml-1 inline-flex items-center gap-1 group">
+              Create a free account<svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </a>
+          </p>
+        </div>
+
+        <!-- Trust Badges -->
+        <div class="mt-10 pt-8 border-t border-gray-200 dark:border-gray-700">
+          <div class="flex items-center justify-center gap-8 text-xs text-gray-500 dark:text-gray-400">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              <span>SSL Secured</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+              </svg>
+              <span>No Spam</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+              </svg>
+              <span>Free Forever</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
